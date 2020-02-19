@@ -5,7 +5,7 @@ import seaborn as sns
 matplotlib.rcParams.update({'font.size': 14})
 #sns.set()
 
-values = np.genfromtxt("cosmology.txt")
+values = np.genfromtxt("../cosmology.txt")
 n = len(values[:,0])
 
 #x, eta(x), Hp(x), dHp_dx, omegaB, omegaCDM, omegaLambda, OmegaR, OmegaNu, OmegaK"
@@ -57,6 +57,7 @@ def plot_omegas():
     plt.xlabel("x")
     plt.ylabel(r"$\Omega$")
     plt.xlim(x[0],x[-1])
+    plt.savefig("omega_plot.pdf")
     plt.show()
 
 plot_omegas()
@@ -67,7 +68,7 @@ def plot_H_eta():
     ax[0,0].semilogy(x, H)
     ax[0,0].set_title("H(x) [km/s/Mpc]")
     ax[0,0].set_xlabel("x")
-    ax[0,0].set_ylabel("log H")
+    ax[0,0].set_ylabel("H")
     ax[0,0].axvspan(x[0],x[rad_matter_eq],color="peachpuff")
     ax[0,0].axvspan(x[rad_matter_eq], x[matter_dm_eq], color="powderblue")
     ax[0,0].axvspan(x[matter_dm_eq], x[-1], color="pink")
@@ -75,8 +76,8 @@ def plot_H_eta():
 
     ax[0,1].loglog(z, H)
     ax[0,1].set_title("H(z) [km/s/Mpc]")
-    ax[0,1].set_xlabel("log z")
-    ax[0,1].set_ylabel("log H")
+    ax[0,1].set_xlabel("z")
+    ax[0,1].set_ylabel("H")
     #ax[0,1].set_xlim(z[0],z[-1])
     ax[0,1].invert_xaxis()
     ax[0,1].axvspan(z[0],z[rad_matter_eq],color="peachpuff")
@@ -87,7 +88,7 @@ def plot_H_eta():
     ax[1,0].semilogy(x, Hp)
     ax[1,0].set_title(r"$\mathcal{H}(x)$ [km/s/Mpc]")
     ax[1,0].set_xlabel("x")
-    ax[1,0].set_ylabel(r"$\log \mathcal{H}$")
+    ax[1,0].set_ylabel(r"$\mathcal{H}$")
     ax[1,0].axvspan(x[0],x[rad_matter_eq],color="peachpuff")
     ax[1,0].axvspan(x[rad_matter_eq], x[matter_dm_eq], color="powderblue")
     ax[1,0].axvspan(x[matter_dm_eq], x[-1], color="pink")
@@ -97,13 +98,15 @@ def plot_H_eta():
     ax[1,1].semilogy(x, eta)
     ax[1,1].set_title(r"$\eta(x)$ [Gpc]")
     ax[1,1].set_xlabel("x")
-    ax[1,1].set_ylabel(r"$\log \eta$")
+    ax[1,1].set_ylabel(r"$\eta$")
     ax[1,1].axvspan(x[0],x[rad_matter_eq],color="peachpuff")
     ax[1,1].axvspan(x[rad_matter_eq], x[matter_dm_eq], color="powderblue")
     ax[1,1].axvspan(x[matter_dm_eq], x[-1], color="pink")
     ax[1,1].set_xlim(x[0],x[-1])
 
     fig.tight_layout()
+    fig.savefig("H_eta_plots.pdf")
     plt.show()
+    
 
 plot_H_eta()
