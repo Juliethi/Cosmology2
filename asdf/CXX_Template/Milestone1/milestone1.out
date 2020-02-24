@@ -2,6 +2,9 @@
 \BOOKMARK [1][-]{section.2}{Theory}{}% 2
 \BOOKMARK [2][-]{subsection.2.1}{The Friedman equation and density components}{section.2}% 3
 \BOOKMARK [2][-]{subsection.2.2}{Conformal Time}{section.2}% 4
-\BOOKMARK [1][-]{section.3}{Implementation}{}% 5
-\BOOKMARK [1][-]{section.4}{Results}{}% 6
-\BOOKMARK [1][-]{section.5}{Conclution?}{}% 7
+\BOOKMARK [1][-]{section.3}{Method and implementation}{}% 5
+\BOOKMARK [2][-]{subsection.3.1}{Code structure}{section.3}% 6
+\BOOKMARK [2][-]{subsection.3.2}{Time variable}{section.3}% 7
+\BOOKMARK [2][-]{subsection.3.3}{Cosmological parameters}{section.3}% 8
+\BOOKMARK [2][-]{subsection.3.4}{Obtaining solutions}{section.3}% 9
+\BOOKMARK [1][-]{section.4}{Results}{}% 10

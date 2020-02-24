@@ -192,12 +192,15 @@ INPUT /usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm10.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm10.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm7.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmtt12.tfm
 INPUT /home/julie/Documents/Cosmology2/asdf/CXX_Template/Milestone1/omega_plot.pdf
 INPUT /home/julie/Documents/Cosmology2/asdf/CXX_Template/Milestone1/omega_plot.pdf
 INPUT /home/julie/Documents/Cosmology2/asdf/CXX_Template/Milestone1/omega_plot.pdf
 INPUT /home/julie/Documents/Cosmology2/asdf/CXX_Template/Milestone1/H_eta_plots.pdf
 INPUT /home/julie/Documents/Cosmology2/asdf/CXX_Template/Milestone1/H_eta_plots.pdf
 INPUT /home/julie/Documents/Cosmology2/asdf/CXX_Template/Milestone1/H_eta_plots.pdf
+INPUT /home/julie/Documents/Cosmology2/asdf/CXX_Template/Milestone1/milestone1.bbl
+INPUT /home/julie/Documents/Cosmology2/asdf/CXX_Template/Milestone1/milestone1.bbl
 INPUT /home/julie/Documents/Cosmology2/asdf/CXX_Template/Milestone1/milestone1.aux
 INPUT /home/julie/Documents/Cosmology2/asdf/CXX_Template/Milestone1/milestone1.out
 INPUT /home/julie/Documents/Cosmology2/asdf/CXX_Template/Milestone1/milestone1.out
@@ -211,3 +214,5 @@ INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb
 INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb
 INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb
 INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb
+INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb
+INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb

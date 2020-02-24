@@ -6,9 +6,9 @@ matplotlib.rcParams.update({'font.size': 14})
 #sns.set()
 
 values = np.genfromtxt("../cosmology.txt")
-n = len(values[:,0])
-
 #x, eta(x), Hp(x), dHp_dx, omegaB, omegaCDM, omegaLambda, OmegaR, OmegaNu, OmegaK"
+
+n = len(values[:,0])
 Mpc = 3.08567758e22 #Mpc in meters
 x = values[:,0]
 z = 1/np.exp(x) - 1
@@ -30,17 +30,19 @@ def find_eras():
     rad_matter_dif = abs(omegaMatter - omegaR)
     rad_matter_dif = rad_matter_dif[:int(n/2)]
     rad_matter_eq = np.argmin(rad_matter_dif)
-    #print("x value rad matter eq:", x[rad_matter_eq])
+    print("x value rad matter eq:", x[rad_matter_eq])
+    print("z value of rad matter eq:", z[rad_matter_eq])
     
-    matter_dm_dif = abs(omegaMatter - omegaLambda)
-    matter_dm_dif = matter_dm_dif[int(n/2):]
-    matter_dm_eq = np.argmin(matter_dm_dif) + int(n/2)
-    #print("x value matter dm eq:", x[matter_dm_eq])
+    matter_de_dif = abs(omegaMatter - omegaLambda)
+    matter_de_dif = matter_de_dif[int(n/2):]
+    matter_de_eq = np.argmin(matter_de_dif) + int(n/2)
+    print("x value matter de eq:", x[matter_de_eq])
+    print("z value of matter de eq:", z[matter_de_eq])
 
-    return rad_matter_eq, matter_dm_eq
+    return rad_matter_eq, matter_de_eq
 
-rad_matter_eq, matter_dm_eq = find_eras()
-print(rad_matter_eq, matter_dm_eq)
+rad_matter_eq, matter_de_eq = find_eras()
+print(rad_matter_eq, matter_de_eq)
 
 def plot_omegas():
     plt.plot(x, omegaLambda, label=r"$\Omega_{\Lambda}$")
@@ -50,8 +52,8 @@ def plot_omegas():
     plt.plot(x,omegaB, "--", label=r"$\Omega_B$")
     plt.plot(x,omegaCDM, "--",label=r"$\Omega_{CDM}$")
     plt.axvspan(x[0],x[rad_matter_eq],color="peachpuff")
-    plt.axvspan(x[rad_matter_eq], x[matter_dm_eq], color="powderblue")
-    plt.axvspan(x[matter_dm_eq], x[-1], color="pink")
+    plt.axvspan(x[rad_matter_eq], x[matter_de_eq], color="powderblue")
+    plt.axvspan(x[matter_de_eq], x[-1], color="pink")
     plt.legend()
     plt.title(r"Time evolution of $\Omega_i$")
     plt.xlabel("x")
@@ -60,9 +62,10 @@ def plot_omegas():
     plt.savefig("omega_plot.pdf")
     plt.show()
 
-plot_omegas()
+#plot_omegas()
 
 def plot_H_eta():
+    matplotlib.rcParams.update({'font.size': 20})
     fig, ax = plt.subplots(2,2,figsize=(14,10))
     
     ax[0,0].semilogy(x, H)
@@ -70,8 +73,8 @@ def plot_H_eta():
     ax[0,0].set_xlabel("x")
     ax[0,0].set_ylabel("H")
     ax[0,0].axvspan(x[0],x[rad_matter_eq],color="peachpuff")
-    ax[0,0].axvspan(x[rad_matter_eq], x[matter_dm_eq], color="powderblue")
-    ax[0,0].axvspan(x[matter_dm_eq], x[-1], color="pink")
+    ax[0,0].axvspan(x[rad_matter_eq], x[matter_de_eq], color="powderblue")
+    ax[0,0].axvspan(x[matter_de_eq], x[-1], color="pink")
     ax[0,0].set_xlim(x[0],x[-1])
 
     ax[0,1].loglog(z, H)
@@ -81,8 +84,8 @@ def plot_H_eta():
     #ax[0,1].set_xlim(z[0],z[-1])
     ax[0,1].invert_xaxis()
     ax[0,1].axvspan(z[0],z[rad_matter_eq],color="peachpuff")
-    ax[0,1].axvspan(z[rad_matter_eq], z[matter_dm_eq], color="powderblue")
-    ax[0,1].axvspan(z[matter_dm_eq], z[-1], color="pink")
+    ax[0,1].axvspan(z[rad_matter_eq], z[matter_de_eq], color="powderblue")
+    ax[0,1].axvspan(z[matter_de_eq], z[-1], color="pink")
     ax[0,1].set_xlim(z[0],z[-1])
 
     ax[1,0].semilogy(x, Hp)
@@ -90,8 +93,8 @@ def plot_H_eta():
     ax[1,0].set_xlabel("x")
     ax[1,0].set_ylabel(r"$\mathcal{H}$")
     ax[1,0].axvspan(x[0],x[rad_matter_eq],color="peachpuff")
-    ax[1,0].axvspan(x[rad_matter_eq], x[matter_dm_eq], color="powderblue")
-    ax[1,0].axvspan(x[matter_dm_eq], x[-1], color="pink")
+    ax[1,0].axvspan(x[rad_matter_eq], x[matter_de_eq], color="powderblue")
+    ax[1,0].axvspan(x[matter_de_eq], x[-1], color="pink")
     ax[1,0].set_xlim(x[0],x[-1])
 
 
@@ -100,8 +103,8 @@ def plot_H_eta():
     ax[1,1].set_xlabel("x")
     ax[1,1].set_ylabel(r"$\eta$")
     ax[1,1].axvspan(x[0],x[rad_matter_eq],color="peachpuff")
-    ax[1,1].axvspan(x[rad_matter_eq], x[matter_dm_eq], color="powderblue")
-    ax[1,1].axvspan(x[matter_dm_eq], x[-1], color="pink")
+    ax[1,1].axvspan(x[rad_matter_eq], x[matter_de_eq], color="powderblue")
+    ax[1,1].axvspan(x[matter_de_eq], x[-1], color="pink")
     ax[1,1].set_xlim(x[0],x[-1])
 
     fig.tight_layout()
