@@ -35,14 +35,49 @@
     \end{titlepage}
 
 \section{Introduction}
+In this projet we wish to follow in the footsteps of Petter Callin\cite{callin2006calculate} who numerically reproduces the power spectrum obtained by the CMB data. This will be done in several steps, where each step simulates the different physical processes that make up the power spectrum.
+
+The first milestone consisted of calculating the background cosmology of the whole universe. For this milestone, the goal is to simulate the physics behind recombination. This will be done by computing how the optical depth and visibility function evolves in time. In doing so, we will also need to solve the Saha equation and the Peebles equations.
+
+As with the first part of this project, all numerical solutions will be obtained by utilising the C++ code base provided by our lecturer, Hans Winther. All visualization of the data will be done using Python.
 
 \section{Theorethical Background}
 \subsection{Optical depth}
-\subsection{Boltzman equation}
-\subsection{Saha equation}
-\subsection{Peebles equation}
+As mentioned, the main goal of this project is to compute how the optical depth evolves in time. In short terms, the optical depth explains wether a medium is optically thin, or optically thick. If you send a beam of light through an optically thick medium, the light will be scattered in all directions, and not much will pass through, which of course means that if you do the same throuhg an optically thin medium, most, if not all of the light will pass through. 
+
+The intensitiy $I$ of such a beam is given by $I(x)=I_0e^{-\tau(x)}$ where $I_0$ is the initial intensity at the source and $I(x)$ is the intensity measured after some distance $x$. Here, $\tau$ represents the optical depth. If $\tau \ll 1$, we say the medium is optically thin, and if $\tau \gg 1$, the medium is thick. $\tau \approx 1$ is the transition between these two states.
+
+The optical depth can be expressed as an integral
+\begin{equation}\label{eq:opticaldepth integral}
+    \tau(\eta)=\int_{\eta}^{\eta_{0}} n_{e} \sigma_{T} a d \eta^{\prime}
+\end{equation}
+
+or as an ordinary differential equation
+
+\begin{equation}\label{eq: opticaldepth ode}
+    \tau^{\prime}=\frac{d \tau}{d x}=-\frac{n_{e} \sigma_{T}}{H}.
+\end{equation}
+
+Here, $n_e$ is the electron density, $\sigma_T = \frac{8 \pi}{3} \frac{\alpha^{2} \hbar^{2}}{m_{e}^{2} c^{2}}$ is the Thompson scattering. $a$ and $H$ is of course the scale factor and Hubble parameter. As with milestone 1, $\eta$ and $x$ are our two time variables of interest, namely the conformal time and the log-scaled scale factor $x = \ln{a}$ respectively.
+
+The reason for why the optical depth is interesting for us to calculate in regards to recombination because the moment of recombination is really just the moment where the universe goes from being optically thick to optically thin. Before recombination, the universe is hot and dense, too hot for even hydrogen to form, meaning there was a lot of free electrons scattered about for the photons to bounce off of, resulting in an optically thick universe. When the universe cooled down, all the free protons and electrons could form into neutral hydrogen, and the photons could travel freely, making the universe optically thin. 
+
+
+\subsection{Electron density}
+To calculate the optical depth given in \cref{eq: opticaldepth ode} we need to know how the electron density $n_e = n_e(\eta)$ behaves in time. 
+
+\subsubsection{Saha equation}
+\subsubsection{Peebles equation}
+\subsection{Visibility function}
 
 \section{Method and implementation}
+\subsection{Reintroduction of constants}
+\subsubsection{Saha equation}
+\subsubsection{Peebles equation}
+
 
 \section{Results}
+
+\bibliography{bibtex}{}
+\bibliographystyle{plain}
 \end{document}
