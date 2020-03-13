@@ -64,9 +64,31 @@ The reason for why the optical depth is interesting for us to calculate in regar
 
 
 \subsection{Electron density}
-To calculate the optical depth given in \cref{eq: opticaldepth ode} we need to know how the electron density $n_e = n_e(\eta)$ behaves in time. 
+To calculate the optical depth given in \cref{eq: opticaldepth ode} we need to know how the electron density $n_e = n_e(\eta)$ behaves in time. To do this, we will calculate the fractional electron density
+
+\begin{equation}\label{eq: x_e}
+    X_{e} = \frac{n_{e}}{n_{H}}
+\end{equation}
+
+where 
+
+\begin{equation}\label{eq: proton density}
+    n_{H}=n_{b} \approx \frac{\rho_{b}}{m_{H}}=\frac{\Omega_{b} \rho_{c}}{m_{H} a^{3}}
+\end{equation}
+
+is the proton density under the assumption that the only baryons in the universe are protons. 
+
+$X_e$ can be solved for in different ways. When the universe is in thermodynamic equillibrium, that is when $X_e \approx 1$, we can use the Saha equation. When the universe begins to cool, during and after recombination, the Saha equation falls short, and we will need to solve the Peebles equation instead. For simplicity we will use the Saha equation in the regime when $X_e > 0.99$ and Peebles equation when $X_e < 0.99$
 
 \subsubsection{Saha equation}
+As mentioned, the Saha equation works perfectly well under the assumption that the universe is in thermodynamic equilibrium. Before recombination, in the dense soup of electrons and protons, we can arguably say that it is. 
+
+The Saha equation is defined as 
+
+\begin{equation}\label{eq: saha equation}
+    \frac{X_{e}^{2}}{1-X_{e}}=\frac{1}{n_{b}}\left(\frac{m_{e} T_{b}}{2 \pi}\right)^{3 / 2} e^{-\epsilon_{0} / T_{b}}
+\end{equation}
+
 \subsubsection{Peebles equation}
 \subsection{Visibility function}
 
