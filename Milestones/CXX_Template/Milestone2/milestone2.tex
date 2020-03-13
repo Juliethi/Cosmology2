@@ -86,10 +86,31 @@ As mentioned, the Saha equation works perfectly well under the assumption that t
 The Saha equation is defined as 
 
 \begin{equation}\label{eq: saha equation}
-    \frac{X_{e}^{2}}{1-X_{e}}=\frac{1}{n_{b}}\left(\frac{m_{e} T_{b}}{2 \pi}\right)^{3 / 2} e^{-\epsilon_{0} / T_{b}}
+    \frac{X_{e}^{2}}{1-X_{e}}=\frac{1}{n_{b}}\left(\frac{m_{e} T_{b}}{2 \pi}\right)^{3 / 2} e^{-\epsilon_{0} / T_{b}},
 \end{equation}
+where $m_e$ is the electron mass and $T_b$ is the baryon temperature. For simplicity, we assume that the baryon temperature follows the photon temperature, that is $T_b = T_r = T_{cmb}/a$. 
 
 \subsubsection{Peebles equation}
+When we can no longer trust the solution from the Saha equation, we will use the Peebles equation. The Peebles equation takes on the form 
+\begin{equation}\label{eq: peebles equation}
+    \frac{d X_{e}}{d x}=\frac{C_{r}\left(T_{b}\right)}{H}\left[\beta\left(T_{b}\right)\left(1-X_{e}\right)-n_{H} \alpha^{(2)}\left(T_{b}\right) X_{e}^{2}\right],
+\end{equation}
+where
+
+\begin{align*}\label{eq: peebles components}
+        C_{r}\left(T_{b}\right) &=\frac{\Lambda_{2 s \rightarrow 1 s}+\Lambda_{\alpha}}{\Lambda_{2 s \rightarrow 1 s}+\Lambda_{\alpha}+\beta^{(2)}\left(T_{b}\right)} \\
+        \Lambda_{2 s \rightarrow 1 s} &=8.227 \mathrm{s}^{-1} \\
+        \Lambda_{\alpha} &=H \frac{\left(3 \epsilon_{0}\right)^{3}}{(8 \pi)^{2} n_{1 s}} \\
+        n_{1 s} &=\left(1-X_{e}\right) n_{H} \\
+        \beta^{(2)}\left(T_{b}\right) &=\beta\left(T_{b}\right) e^{3 \epsilon_{0} / 4 T_{b}} \\
+        \beta\left(T_{b}\right) &=\alpha^{(2)}\left(T_{b}\right)\left(\frac{m_{e} T_{b}}{2 \pi}\right)^{3 / 2} e^{-\epsilon_{0} / T_{b}} \\
+        \alpha^{(2)}\left(T_{b}\right) &=\frac{64 \pi}{\sqrt{27 \pi}} \frac{\alpha^{2}}{m_{e}^{2}} \sqrt{\frac{\epsilon_{0}}{T_{b}}} \phi_{2}\left(T_{b}\right) \\
+        \phi_{2}\left(T_{b}\right) &=0.448 \ln \left(\epsilon_{0} / T_{b}\right).
+\end{align*}
+
+Spooky stuff. 
+
+
 \subsection{Visibility function}
 
 \section{Method and implementation}
