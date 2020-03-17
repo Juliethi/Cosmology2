@@ -39,7 +39,7 @@ In this projet we wish to follow in the footsteps of Petter Callin\cite{callin20
 
 The first milestone consisted of calculating the background cosmology of the whole universe. For this milestone, the goal is to simulate the physics behind recombination. This will be done by computing how the optical depth and visibility function evolves in time. In doing so, we will also need to solve the Saha equation and the Peebles equations.
 
-As with the first part of this project, all numerical solutions will be obtained by utilising the C++ code base provided by our lecturer, Hans Winther. All visualization of the data will be done using Python.
+As with the first part of this project, all numerical solutions will be obtained by utilising the C++ code base provided by our lecturer, Hans Winther.
 
 \section{Theorethical Background}
 \subsection{Optical depth}
@@ -108,16 +108,90 @@ where
         \phi_{2}\left(T_{b}\right) &=0.448 \ln \left(\epsilon_{0} / T_{b}\right).
 \end{align*}
 
-Spooky stuff. 
+Spooky stuff. Write more about this later
 
 
 \subsection{Visibility function}
+\begin{equation}
+    \tilde{g}(x)=-\tau^{\prime} e^{-\tau}, \quad \int_{-\infty}^{0} \tilde{g}(x) d x=1
+\end{equation}
 
 \section{Method and implementation}
-\subsection{Reintroduction of constants}
-\subsubsection{Saha equation}
-\subsubsection{Peebles equation}
+\subsection{Code structure}
+For this milestone, all main coding was done in the file \texttt{RecombinationHistort.cpp}. We again utilized the Spline- and ODEsolver-methods from the GSL package. All visualization of the data was done using Python, and can be found in \texttt{milestone2\_plots.py}.
 
+\subsection{Reintroduction of constants}
+As most phycisists, we like to keep things simple, meaning that we don't like to drag around constants unless we absolutely have to. This means that in all equations above we have used natural units, meaning that $c = \hbar = k_b = 1$. Now, had we implemented the equations as they stand now, it would lead to some problems. First of all, most of our equations contains an exponential, and the argument of an exponential has to be unitless. Second of all, we're calculatuing $X_e$, which is unitless, which means that the equations used to find this quantity will also need to be unitless.
+
+To achieve this we reintroduced the constants $c, \hbar, k_b$ in the equations so that they have the right dimentionality again. This can be done in several clever and rigorous ways. Or it can be done by making educated guesses, throwing some constants at the equations and see what sticks. We, of course, did the latter, anything else would have been silly... \textit{it would also probably have been much quicker}.
+
+The units for the three constants we want to reintroduce are as following:
+\begin{align*}
+    \left[\hbar\right] &= Js = \frac{kgm^2}{s} \\
+    \left[c\right] &= \frac{m}{s} \\
+    \left[k_b\right] &= \frac{J}{K} = \frac{kgm^2}{Ks^2}.
+\end{align*}
+
+The very messy process of fixing the dimentionality will be fully explained with the Saha equation, by then both the reader and the author will probably be tired of reading and writing about how "we tried this and that until it worked", so the proccess behind the Peebles equation will be kept short and sweet with a focus on the main logic behind all educated guesses.
+
+\subsubsection{Saha equation}
+As a reminder, the Saha equation looks like 
+\begin{equation}\label{eq: saha equation again}
+    \frac{X_{e}^{2}}{1-X_{e}}=\frac{1}{n_{b}}\left(\frac{m_{e} T_{b}}{2 \pi}\right)^{3 / 2} e^{-\epsilon_{0} / T_{b}},
+\end{equation}.
+
+where the left hand side if, of course, unitless. Now, the units for each constant on the right hand side is $[n_b] = 1/m^3$, $[m_e]=kg$, $[T_b] = K$ and $[\epsilon_0] = eV = J$. 
+
+First and foremost, we know that every $\epsilon_0/T_b$ should be $\epsilon_0/k_b T_b$, as both $\epsilon_0$ and $k_b T_b$ has units energy. The exponential in the expression is thus dealt with. 
+
+The remaining units to deal with are then as following
+\begin{align}
+    \frac{1}{n_{b}}\left(\frac{m_{e} T_{b}}{2 \pi}\right)^{3 / 2} = m^3(kgK)^{3/2}.
+\end{align}
+
+To make this easier to work with, we squared everything, resulting in
+\begin{align}
+m^6K^3kg^3,
+\end{align}
+meaning we have to find a combination of constants with the units $m^{-6}kg^{-3}K^{-3}$.
+
+So, the first obvious choice here is that we need the Boltzmann constant $k_b$, as that is the only constant with temperature as part of its units. Specifically, we need $[k_b^3] = kg^3m^6/K^3s^6$. This is where a more rigorous approach would have been more appropriate, and would have been easier to replicate on paper, but basically the process from here on out consisted of just observing that we at least need $kg^-{6}$ and $m^{-12}$ as a start, and then just staring really hard at what we had to work with until it became obvious that we needed to divide by $\hbar^6$. This yielded 
+
+\begin{align}
+    \frac{k_b^3}{\hbar^6} &= \frac{kg^3m^6}{K^3s^6} \frac{s^6}{kg^6m^{12}} \\
+    \frac{k_b^3}{\hbar^6} &= \frac{1}{kg^3m^6K^3},
+\end{align} 
+which is what we wanted. Taking the square root of this and inserting it back into \cref{eq: saha equation again} gives
+
+\begin{equation}\label{eq: final saha equation}
+    \frac{X_{e}^{2}}{1-X_{e}}=\frac{1}{n_{b}\hbar^3}\left(\frac{m_{e} T_{b}k_b}{2 \pi}\right)^{3 / 2} e^{-\epsilon_{0} /k_b T_{b}}.
+\end{equation}
+
+
+\subsubsection{Peebles equation}
+Now, to say that we followed this exact procedure with the Peebles equation would be an oversimplification, given the more complicated nature of the equation with all it's different products. But in essence, that's what was done with each separate subequation. The important part was to keep track on which subequations are coupled and to work in a clever order from there. This process will be explained as briefly as possible as to not give the reader a headache! 
+
+Again, as a reminder, the Peebles equation takes on the form 
+\begin{equation}\label{eq: peebles equation again}
+    \frac{d X_{e}}{d x}=\frac{C_{r}\left(T_{b}\right)}{H}\left[\beta\left(T_{b}\right)\left(1-X_{e}\right)-n_{H} \alpha^{(2)}\left(T_{b}\right) X_{e}^{2}\right],
+\end{equation}
+where
+
+\begin{align*}\label{eq: peebles components again}
+        C_{r}\left(T_{b}\right) &=\frac{\Lambda_{2 s \rightarrow 1 s}+\Lambda_{\alpha}}{\Lambda_{2 s \rightarrow 1 s}+\Lambda_{\alpha}+\beta^{(2)}\left(T_{b}\right)} \\
+        \Lambda_{2 s \rightarrow 1 s} &=8.227 \mathrm{s}^{-1} \\
+        \Lambda_{\alpha} &=H \frac{\left(3 \epsilon_{0}\right)^{3}}{(8 \pi)^{2} n_{1 s}} \\
+        n_{1 s} &=\left(1-X_{e}\right) n_{H} \\
+        \beta^{(2)}\left(T_{b}\right) &=\beta\left(T_{b}\right) e^{3 \epsilon_{0} / 4 T_{b}} \\
+        \beta\left(T_{b}\right) &=\alpha^{(2)}\left(T_{b}\right)\left(\frac{m_{e} T_{b}}{2 \pi}\right)^{3 / 2} e^{-\epsilon_{0} / T_{b}} \\
+        \alpha^{(2)}\left(T_{b}\right) &=\frac{64 \pi}{\sqrt{27 \pi}} \frac{\alpha^{2}}{m_{e}^{2}} \sqrt{\frac{\epsilon_{0}}{T_{b}}} \phi_{2}\left(T_{b}\right) \\
+        \phi_{2}\left(T_{b}\right) &=0.448 \ln \left(\epsilon_{0} / T_{b}\right).
+\end{align*}
+are the aforementioned subequations.
+
+So, first of all we want to make $\frac{C_r}{H}$, $\beta(T_b)(1-X_e)$ and $n_H\alpha^{(2)}(T_b)X_e^2$ unitless. 
+
+Now, first of all, all $\epsilon_0/T_b$ are in fact $\epsilon_0/k_b T_b$ as before. 
 
 \section{Results}
 
