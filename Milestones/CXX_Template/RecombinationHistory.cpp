@@ -191,11 +191,26 @@ int RecombinationHistory::rhs_peebles_ode(double x, const double *Xe, double *dX
   const double sigma_T     = Constants.sigma_T;
   const double lambda_2s1s = Constants.lambda_2s1s;
   const double epsilon_0   = Constants.epsilon_0;
+  const double H0_over_h   = Constants.H0_over_h;
+  const double H0 = H0_over_h*h;
 
-  // Cosmological parameters
-  // const double OmegaB      = cosmo->get_OmegaB();
-  // ...
-  // ...
+  const double OmegaB = cosmo->get_OmegaB(); //todays value of omega_B
+  const double H = cosmo -> H_of_x(x);
+  
+  double rho_c = 3*H0*H0/(8*M_PI*G);
+  
+  double n_b = OmegaB*rho_c/(m_H*pow(a,3)); //also n_h
+  double T_b = TCMB/a;
+
+  double n_1s = (1-X_e)*n_b;
+  double Lambda_alpha = H*pow(3*epsilon_0,3)/(8*8*M_PI*M_PI*n_1s)*pow(hbar*c,-3);
+  double Lambda_2s1s = 8.227;
+  double phi2 = 0.448*log(epsilon_0/(k_b*T_b));
+  double alpha2 = 8/sqrt(27*M_PI)*c*sigma_T*sqrt(epsilon_0/(k_b*T_b))*phi2;
+  double beta = alpha2/pow(hbar,3)*pow(m_e*k_b*T_b/(2*M_PI),3./2.)*exp(-epsilon_0/(k_b*T_b));
+  double beta2 = alpha2/pow(hbar,3)*pow(m_e*k_b*T_b/(2*M_PI),3./2.)*exp(-epsilon_0/(4*k_b*T_b));
+
+  double Cr = (Lambda_2s1s + Lambda_alpha)/(Lambda_2s1s+Lambda_alpha + beta2);
 
   //=============================================================================
   // TODO: Write the expression for dXedx
@@ -203,7 +218,7 @@ int RecombinationHistory::rhs_peebles_ode(double x, const double *Xe, double *dX
   //...
   //...
   
-  dXedx[0] = 0.0;
+  dXedx[0] = Cr/H*(beta*(1-X_e) - n_b*alpha2*X_e*X_e);
 
   return GSL_SUCCESS;
 }
