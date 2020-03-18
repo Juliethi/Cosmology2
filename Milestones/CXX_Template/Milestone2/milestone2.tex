@@ -189,10 +189,42 @@ where
 \end{align*}
 are the aforementioned subequations.
 
-So, first of all we want to make $\frac{C_r}{H}$, $\beta(T_b)(1-X_e)$ and $n_H\alpha^{(2)}(T_b)X_e^2$ unitless. 
+The end goal is to make $\frac{C_r}{H}\beta(T_b)(1-X_e)$ and $\frac{C_r}{H}n_H\alpha^{(2)}(T_b)X_e^2$ unitless. First of all, all $\epsilon_0/T_b$ are in fact $\epsilon_0/k_b T_b$ as before. 
 
-Now, first of all, all $\epsilon_0/T_b$ are in fact $\epsilon_0/k_b T_b$ as before. 
+Now comes the fun part. We started looking at $C_r$. We know that $[\Lambda_{2s\rightarrow1s}] = s^{-1}$, meaning that the easiest thing to do is to make all other parts of this equation have units $s^{-1}$ as well. Achieving this would yield $C_r$ unitless, making everything down the line easier. 
 
+To do this, we first looked at $\Lambda_{\alpha}$. As it stands, this has units $[\Lambda_{\alpha}]=s^{-1}J^3m^3$. Multiplying this with $(\hbar c)^{-3}$ does the trick. This results in 
+\begin{equation*}
+    \Lambda_{\alpha}= H\frac{(3\epsilon_0)^3}{(8\pi)^2 n_{1s}}(\hbar c)^{-3}, [s^{-1}].
+\end{equation*}
+
+Furthermore, $\beta^{(2)}$ should also have units $s^{-1}$. To achieve this, we added a $k_b$ in the exponential and decided to look at $\beta(T_b)$ immediately, yielding 
+
+\begin{equation*}
+    \beta^{(2)}(T_b) = \beta(T_b)e^{3\epsilon_0/k_bT_b}, [s^{-1}].
+\end{equation*}
+
+This puts a constraint on $\beta(T_b)$, namely that it should also have units $s^{-1}$. Looking back at the \cref{eq: peebles equation again}, this makes sense, as $\frac{C_r}{H}\beta(T_b)(1-X_e)$ should be unitless, and $[H] = s^{-1}$. This means we're on the right track! But this is also where it's important to pay attention to the end goal. $\beta(T_b)$ contains the function $\alpha^{(2)}(T_b)$, which we need to make sure have the right units because $\frac{C_r}{H}n_H\alpha^{(2)}(T_b)X_e^2$ needs to be unitless. Thus, we dealt with $\alpha^{(2)}$ first. 
+
+Now, after inserting all $k_b$ we need in both $\alpha^{(2)}$ and $\phi_2$, we have $[\alpha^{(2)}] = kg^{-2}$. Again, we want $\alpha^{(2)}$ to cancel out the units of $[\frac{C_r}{H}n_HX_e^2] = s/m^3$. This means had to find a combination of constants giving $[kg^2m^3/s]$, which $\hbar^2/c$ does. Inserting this into $\alpha^{(2)}$ yields
+
+\begin{equation*}
+    \alpha^{(2)}(T_b) = =\frac{64 \pi}{\sqrt{27 \pi}} \frac{(\hbar\alpha)^{2}}{cm_{e}^{2}} \sqrt{\frac{\epsilon_{0}}{k_bT_{b}}} \phi_{2}\left(T_{b}\right), [m^3/s]
+\end{equation*}
+
+with
+
+\begin{equation*}
+    \phi_2(T_b) = 0.448\ln(\epsilon_0/k_b T_b).
+\end{equation*}
+
+Almost finished! Now all that's left is to get $[\beta(T_b)] = s^{-1}$. With the units for $\alpha^{(2)}$ known, we also know that $[\beta(T_b)] = m^3/s\cdot\left(kgK\right)^{3/2}$. This looked awfully familiar, so we just inserted the solution already found from the Saha equation, namely that $k_b^{3/2}/\hbar^3$, which returns
+
+\begin{equation*}
+    \beta(T_b) = \frac{\alpha^{(2)}}{\hbar^3} \left(\frac{m_e k_b T_b}{2\pi}\right)^{3/2} e^{-\epsilon_0/k_b T_b}, [s^{-1}].
+\end{equation*}
+
+Now all equations has the proper dimentionality and can be implemented in the code. \textit{Phew. Now that was neither brief, short or sweet, and might be a bit more headache-inducing than I meant for it to be..}
 \section{Results}
 
 \bibliography{bibtex}{}
