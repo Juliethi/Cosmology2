@@ -65,10 +65,12 @@ void RecombinationHistory::solve_number_density_electrons(){
 
     // Are we still in the Saha regime?
     if(Xe_current < Xe_saha_limit)
-      saha_regime = false;
+      saha_regime = true;
 
     if(saha_regime){
       
+      Xe_array[i] = Xe_current;
+      ne_array[i] = ne_current;
       //=============================================================================
       // TODO: Store the result we got from the Saha equation
       //=============================================================================
@@ -100,7 +102,12 @@ void RecombinationHistory::solve_number_density_electrons(){
     
     }
   }
-
+  //Creating splines of log(Xe) and log(ne). The functions Xe_of_x and ne_of_x will... unlog this further down.
+  Vector logXe = log(Xe_array);
+  Vector logne = log(ne_array);
+  log_Xe_of_x_spline.create(x_array, logXe);
+  log_ne_of_x_spline.create(x_array, logne);
+  
   //=============================================================================
   // TODO: Spline the result. Implement and make sure the Xe_of_x, ne_of_x 
   // functions are working
@@ -130,21 +137,34 @@ std::pair<double,double> RecombinationHistory::electron_fraction_from_saha_equat
   // Fetch cosmological parameters
   //const double OmegaB      = cosmo->get_OmegaB();
   const double OmegaB = cosmo->get_OmegaB(); //todays value of omega_B
- 
-  // Electron fraction and number density
-  double Xe = 0.0;
-  double ne = 0.0;
+  double rho_c = 3*H0*H0/(8*M_PI*G);
   
-  double A(double a){
-    double T_b = TCMB/a;
-    double rho_c = 3*H0*H0/(8*M_PI*G);
-    double n_b = OmegaB*rho_c/(m_H*pow(a,3));
-    return 0.0;
+
+  // Electron fraction and number density
+  //double Xe = 0.0;
+  //double ne = 0.0;
+  double n_b = OmegaB*rho_c/(m_H*pow(a,3)); //also n_h
+  double T_b = TCMB/a;
+  double C = 1/(n_b*pow(hbar,3))*pow(m_e*T_b*k_b/(2*M_PI), 3.0/2.0)*exp(-epsilon_0/(k_b*T_b));
+
+  double Xe;
+
+  //End points. If C is very large(it is hot), a is very small => super duper early universe => X_e = 1
+  if(C > 1e9){
+    Xe = 1;
+  } 
+
+  //If C is very small, the Saha equation approaches 0, to mitigate instabilites we set it to 0. 
+  if(C<1e-20){
+    Xe = 0;
   }
 
-  double Xe_from_Saha(double a){
-    return 0.0;
-  }
+  Xe = C/2.0 + sqrt(C*(C+4))/2.0;
+
+  double ne = Xe*n_b;
+  
+
+
   //=============================================================================
   // TODO: Compute Xe and ne from the Saha equation
   //=============================================================================

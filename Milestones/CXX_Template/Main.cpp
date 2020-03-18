@@ -43,6 +43,7 @@ int main(int argc, char **argv){
   
   // Solve the recombination history
   RecombinationHistory rec(&cosmo, Yp, h, TCMB);
+  rec.solve();
   rec.info();
 
   // Output recombination quantities
