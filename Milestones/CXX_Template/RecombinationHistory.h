@@ -17,6 +17,8 @@ class RecombinationHistory{
     
     // Helium fraction
     double Yp;
+    double h;
+    double TCMB;
  
     // The start and end points for recombination arrays (can be modified)
     const double x_start  = Constants.x_start;
@@ -59,7 +61,10 @@ class RecombinationHistory{
     RecombinationHistory() = delete;
     RecombinationHistory(
         BackgroundCosmology *cosmo, 
-        double Yp);
+        double Yp,
+        double h,
+        double TCMB
+        );
 
     // Do all the solving
     void solve();

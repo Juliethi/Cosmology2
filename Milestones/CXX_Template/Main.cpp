@@ -35,14 +35,14 @@ int main(int argc, char **argv){
   cosmo.output("cosmology.txt");
 
   // Remove when module is completed
-  return 0;
+  //return 0;
 
   //=========================================================================
   // Module II
   //=========================================================================
   
   // Solve the recombination history
-  RecombinationHistory rec(&cosmo, Yp);
+  RecombinationHistory rec(&cosmo, Yp, h, TCMB);
   rec.info();
 
   // Output recombination quantities

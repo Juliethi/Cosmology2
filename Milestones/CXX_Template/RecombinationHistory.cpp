@@ -6,9 +6,13 @@
    
 RecombinationHistory::RecombinationHistory(
     BackgroundCosmology *cosmo, 
-    double Yp) :
+    double Yp,
+    double h,
+    double TCMB) :
   cosmo(cosmo),
-  Yp(Yp)
+  Yp(Yp),
+  h(h),
+  TCMB(TCMB)
 {}
 
 //====================================================
@@ -34,9 +38,16 @@ void RecombinationHistory::solve_number_density_electrons(){
   //=============================================================================
   // TODO: Set up x-array and make arrays to store X_e(x) and n_e(x) on
   //=============================================================================
-  Vector x_array;
-  Vector Xe_arr;
-  Vector ne_arr;
+  int x_start = -20;
+  int x_end = 0;
+  int n = 1000;
+  Vector x_array = Utils::linspace(x_start, x_end, n);
+  Vector Xe_array(n);
+  Vector ne_array(n);
+
+  //Vector x_array;
+  //Vector Xe_arr;
+  //Vector ne_arr;
 
   // Calculate recombination history
   bool saha_regime = true;
@@ -114,16 +125,26 @@ std::pair<double,double> RecombinationHistory::electron_fraction_from_saha_equat
   const double m_H         = Constants.m_H;
   const double epsilon_0   = Constants.epsilon_0;
   const double H0_over_h   = Constants.H0_over_h;
+  const double H0 = H0_over_h*h; //SI UNITS
 
   // Fetch cosmological parameters
   //const double OmegaB      = cosmo->get_OmegaB();
-  //...
-  //...
-
+  const double OmegaB = cosmo->get_OmegaB(); //todays value of omega_B
+ 
   // Electron fraction and number density
   double Xe = 0.0;
   double ne = 0.0;
   
+  double A(double a){
+    double T_b = TCMB/a;
+    double rho_c = 3*H0*H0/(8*M_PI*G);
+    double n_b = OmegaB*rho_c/(m_H*pow(a,3));
+    return 0.0;
+  }
+
+  double Xe_from_Saha(double a){
+    return 0.0;
+  }
   //=============================================================================
   // TODO: Compute Xe and ne from the Saha equation
   //=============================================================================
