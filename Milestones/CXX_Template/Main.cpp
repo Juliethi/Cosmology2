@@ -20,7 +20,7 @@ int main(int argc, char **argv){
   double TCMB        = 2.725;
 
   // Recombination parameters
-  double Yp          = 0.24;
+  double Yp          = 0;
 
   //=========================================================================
   // Module I

@@ -38,12 +38,12 @@ void RecombinationHistory::solve_number_density_electrons(){
   //=============================================================================
   // TODO: Set up x-array and make arrays to store X_e(x) and n_e(x) on
   //=============================================================================
-  int x_start = -20;
-  int x_end = 0;
-  int n = 1000;
-  Vector x_array = Utils::linspace(x_start, x_end, n);
-  Vector Xe_array(n);
-  Vector ne_array(n);
+  //int x_start = -20;
+  //int x_end = 0;
+  //int n = 1000;
+  Vector x_array = Utils::linspace(x_start, x_end, npts_rec_arrays);
+  Vector Xe_array(npts_rec_arrays);
+  Vector ne_array(npts_rec_arrays);
 
   //Vector x_array;
   //Vector Xe_arr;
@@ -65,17 +65,12 @@ void RecombinationHistory::solve_number_density_electrons(){
 
     // Are we still in the Saha regime?
     if(Xe_current < Xe_saha_limit)
-      saha_regime = true;
+      saha_regime = false;
 
     if(saha_regime){
-      
+      //std::cout << "Xe current=" << Xe_current << std::endl;
       Xe_array[i] = Xe_current;
       ne_array[i] = ne_current;
-      //=============================================================================
-      // TODO: Store the result we got from the Saha equation
-      //=============================================================================
-      //...
-      //...
 
     } else {
 
@@ -107,7 +102,11 @@ void RecombinationHistory::solve_number_density_electrons(){
   Vector logne = log(ne_array);
   log_Xe_of_x_spline.create(x_array, logXe);
   log_ne_of_x_spline.create(x_array, logne);
-  
+
+  //temporary
+  tau_of_x_spline.create(x_array,x_array); 
+  g_tilde_of_x_spline.create(x_array,x_array);
+
   //=============================================================================
   // TODO: Spline the result. Implement and make sure the Xe_of_x, ne_of_x 
   // functions are working
@@ -146,30 +145,29 @@ std::pair<double,double> RecombinationHistory::electron_fraction_from_saha_equat
   double n_b = OmegaB*rho_c/(m_H*pow(a,3)); //also n_h
   double T_b = TCMB/a;
   double C = 1/(n_b*pow(hbar,3))*pow(m_e*T_b*k_b/(2*M_PI), 3.0/2.0)*exp(-epsilon_0/(k_b*T_b));
-
+  //std::cout << "C=" << C << std::endl;
   double Xe;
 
   //End points. If C is very large(it is hot), a is very small => super duper early universe => X_e = 1
-  if(C > 1e9){
+  if(C > 1e6){
+    //std::cout << "henlo i am big" << std::endl;
     Xe = 1;
   } 
 
-  //If C is very small, the Saha equation approaches 0, to mitigate instabilites we set it to 0. 
+  //If C is very small, the Saha equation approaches 0, to mitigate instabilites we set it to 0. But since we're logging later, we set it to something small
   if(C<1e-20){
-    Xe = 0;
+    //std::cout << "henlo i am smol" << std::endl;
+    Xe = 1e-50;
   }
 
-  Xe = C/2.0 + sqrt(C*(C+4))/2.0;
+  else{
+    //std::cout << "henlo i am just right" << std::endl;
+    Xe = -C/2.0 + sqrt(C*(C+4))/2.0;
+  }
+  
+  //std::cout << "Xe=" << Xe << std::endl;
 
   double ne = Xe*n_b;
-  
-
-
-  //=============================================================================
-  // TODO: Compute Xe and ne from the Saha equation
-  //=============================================================================
-  //...
-  //...
 
   return std::pair<double,double>(Xe, ne);
 }
@@ -310,25 +308,11 @@ double RecombinationHistory::ddgddx_tilde_of_x(double x) const{
 }
 
 double RecombinationHistory::Xe_of_x(double x) const{
-
-  //=============================================================================
-  // TODO: Implement
-  //=============================================================================
-  //...
-  //...
-
-  return 0.0;
+  return exp(log_Xe_of_x_spline(x));
 }
 
 double RecombinationHistory::ne_of_x(double x) const{
-
-  //=============================================================================
-  // TODO: Implement
-  //=============================================================================
-  //...
-  //...
-
-  return 0.0;
+  return exp(log_ne_of_x_spline(x));
 }
 
 double RecombinationHistory::get_Yp() const{
