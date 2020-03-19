@@ -94,6 +94,8 @@ void RecombinationHistory::solve_number_density_electrons(){
       double x_start_peebles = x_array[i];
       Vector X_peebles = Utils::linspace(x_start_peebles, x_end, npts_rec_arrays-i);
 
+      //Not sure if I want to use linspace or for loop here, both seem to do the same but... linspace feels dangerous.
+
       //Vector X_peebles(npts_rec_arrays-i);
       //for(int j=0; j<npts_rec_arrays-i; j++){
       //  X_peebles[j] = x_array[j+i];
@@ -121,21 +123,13 @@ void RecombinationHistory::solve_number_density_electrons(){
       }
 
       break;
-
-
-
-      //=============================================================================
-      // TODO: Set up IC, solve the ODE and fetch the result 
-      //=============================================================================
-      //...
-      //...
     
     }
   }
   //Creating splines of log(Xe) and log(ne). The functions Xe_of_x and ne_of_x will... unlog this further down.
-  for(int i = 0; i < npts_rec_arrays; i++){
-    std::cout << "Xe after peebles=" << Xe_array[i] << std::endl;
-  }
+  //for(int i = 0; i < npts_rec_arrays; i++){
+  //  std::cout << "Xe after peebles=" << Xe_array[i] << std::endl;
+  //}
 
 
   Vector logXe = log(Xe_array);
@@ -144,8 +138,8 @@ void RecombinationHistory::solve_number_density_electrons(){
   log_ne_of_x_spline.create(x_array, logne);
 
   //temporary
-  tau_of_x_spline.create(x_array,x_array); 
-  g_tilde_of_x_spline.create(x_array,x_array);
+  //tau_of_x_spline.create(x_array,x_array); 
+  //g_tilde_of_x_spline.create(x_array,x_array);
 
   //=============================================================================
   // TODO: Spline the result. Implement and make sure the Xe_of_x, ne_of_x 
@@ -266,35 +260,62 @@ void RecombinationHistory::solve_for_optical_depth_tau(){
   Utils::StartTiming("opticaldepth");
 
   // Set up x-arrays to integrate over. We split into three regions as we need extra points in reionisation
-  const int npts = 1000;
+  const int npts = npts_rec_arrays;
+  //double x_end = 2;
+  double x_start = -12; 
+  //double where_x0 = 0.0; 
   Vector x_array = Utils::linspace(x_start, x_end, npts);
 
   // The ODE system dtau/dx, dtau_noreion/dx and dtau_baryon/dx
   ODEFunction dtaudx = [&](double x, const double *tau, double *dtaudx){
-
-    //=============================================================================
-    // TODO: Write the expression for dtaudx
-    //=============================================================================
-    //...
-    //...
-
-    // Set the derivative for photon optical depth
-    dtaudx[0] = 0.0;
-
+    double n_e = ne_of_x(x);
+    double H = cosmo->H_of_x(x);
+    dtaudx[0] = - Constants.c*n_e*Constants.sigma_T/H;
     return GSL_SUCCESS;
   };
 
-  //=============================================================================
-  // TODO: Set up and solve the ODE and make tau splines
-  //=============================================================================
-  //...
-  //...
 
-  //=============================================================================
-  // TODO: Compute visibility functions and spline everything
-  //=============================================================================
-  //...
-  //...
+  //we dont know what the intial conditions of tau is, we only know that it should be 0 in the last point, so we set it to some arbitrary value now and scale it later
+  Vector tau_ic = {1e3}; 
+
+  ODESolver ode;
+  ode.solve(dtaudx, x_array, tau_ic);
+  auto tau_unscaled = ode.get_data_by_component(0);
+  auto dtaudx_array = ode.get_derivative_data_by_component(0);
+  
+  Vector tau_scaled(npts_rec_arrays);
+  
+  //for(int i = 0; i < npts_rec_arrays; i++){
+  //  std::cout << tau_unscaled[i] << std::endl;
+  //}
+
+  //temporary
+  //tau_of_x_spline.create(x_array,x_array); 
+  
+
+
+  double scale_difference = tau_unscaled[npts_rec_arrays-1]; //the value of tau unscaled when x=0
+  //std::cout << scale_difference << " " << x_array[npts_rec_arrays-1] << std::endl;
+
+  //now we need to rescale: 
+  for(int i = 0; i < npts_rec_arrays; i++){
+    tau_scaled[i] = tau_unscaled[i] - scale_difference;
+    //std::cout << tau_scaled[i] << std::endl;
+  }
+
+  tau_of_x_spline.create(x_array,tau_scaled);
+  dtaudx_of_x_spline.create(x_array,dtaudx_array);
+  //ddtaudx is created in the function? 
+
+
+  Vector g_tilde_array(npts_rec_arrays);
+  for(int i; i < npts_rec_arrays; i++){
+    g_tilde_array[i] = -dtaudx_array[i]*exp(-tau_scaled[i]);
+    std::cout << g_tilde_array[i] << std::endl;
+  }
+
+  g_tilde_of_x_spline.create(x_array,g_tilde_array);
+
 
   Utils::EndTiming("opticaldepth");
 }
@@ -308,26 +329,11 @@ double RecombinationHistory::tau_of_x(double x) const{
 }
 
 double RecombinationHistory::dtaudx_of_x(double x) const{
-
-  //=============================================================================
-  // TODO: Implement. Either from the tau-spline tau_of_x_spline.deriv_(x) or 
-  // from a separate spline if you choose to do this
-  //=============================================================================
-  //...
-  //...
-
-  return 0.0;
+  return dtaudx_of_x_spline(x);
 }
 
 double RecombinationHistory::ddtauddx_of_x(double x) const{
-
-  //=============================================================================
-  // TODO: Implement
-  //=============================================================================
-  //...
-  //...
-
-  return 0.0;
+  return dtaudx_of_x_spline.deriv_x(x);
 }
 
 double RecombinationHistory::g_tilde_of_x(double x) const{
@@ -335,25 +341,11 @@ double RecombinationHistory::g_tilde_of_x(double x) const{
 }
 
 double RecombinationHistory::dgdx_tilde_of_x(double x) const{
-
-  //=============================================================================
-  // TODO: Implement
-  //=============================================================================
-  //...
-  //...
-
-  return 0.0;
+  return g_tilde_of_x_spline.deriv_x(x);
 }
 
 double RecombinationHistory::ddgddx_tilde_of_x(double x) const{
-
-  //=============================================================================
-  // TODO: Implement
-  //=============================================================================
-  //...
-  //...
-
-  return 0.0;
+  return g_tilde_of_x_spline.deriv_xx(x);
 }
 
 double RecombinationHistory::Xe_of_x(double x) const{
@@ -384,7 +376,7 @@ void RecombinationHistory::info() const{
 void RecombinationHistory::output(const std::string filename) const{
   std::ofstream fp(filename.c_str());
   const int npts       = 5000;
-  const double x_min   = x_start;
+  const double x_min   = -12;
   const double x_max   = x_end;
 
   Vector x_array = Utils::linspace(x_min, x_max, npts);
