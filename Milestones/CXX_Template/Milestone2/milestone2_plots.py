@@ -12,5 +12,5 @@ z = 1/np.exp(x) - 1
 
 Xe = values[:,1]
 
-plt.plot(x,Xe)
+plt.semilogy(x,Xe)
 plt.show()

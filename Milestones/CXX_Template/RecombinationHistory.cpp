@@ -74,6 +74,8 @@ void RecombinationHistory::solve_number_density_electrons(){
 
     } else {
 
+      std::cout << "hello it is i, peebles" << std::endl;
+
       //==============================================================
       // TODO: Compute X_e from current time til today by solving 
       // the Peebles equation (NB: if you solve all in one go remember to
@@ -89,6 +91,39 @@ void RecombinationHistory::solve_number_density_electrons(){
         return rhs_peebles_ode(x, Xe, dXedx);
       };
       
+      double x_start_peebles = x_array[i];
+      Vector X_peebles = Utils::linspace(x_start_peebles, x_end, npts_rec_arrays-i);
+
+      //Vector X_peebles(npts_rec_arrays-i);
+      //for(int j=0; j<npts_rec_arrays-i; j++){
+      //  X_peebles[j] = x_array[j+i];
+      //}
+
+      //double hm = X_peebles.size();
+      //std::cout << "size of x_peebles=" << hm << std::endl;
+      Vector peebles_ic ={Xe_current};
+
+      ODESolver ode;
+      ode.solve(dXedx, X_peebles, peebles_ic);
+      auto Xe_array_peebles = ode.get_data_by_component(0);
+      
+      const double OmegaB = cosmo->get_OmegaB();
+      const double H0_over_h   = Constants.H0_over_h;
+      const double H0 = H0_over_h*h;
+      double rho_c = 3*H0*H0/(8*M_PI*Constants.G);
+
+      for(int j = 0; j < npts_rec_arrays-i; j++){
+        Xe_array[j+i] = Xe_array_peebles[j];
+        //std::cout << Xe_array_peebles[j] << std::endl;
+
+        double n_b = OmegaB*rho_c/Constants.m_H*exp(-3*X_peebles[j]);
+        ne_array[j+i] = Xe_array_peebles[j]*n_b;
+      }
+
+      break;
+
+
+
       //=============================================================================
       // TODO: Set up IC, solve the ODE and fetch the result 
       //=============================================================================
@@ -98,6 +133,11 @@ void RecombinationHistory::solve_number_density_electrons(){
     }
   }
   //Creating splines of log(Xe) and log(ne). The functions Xe_of_x and ne_of_x will... unlog this further down.
+  for(int i = 0; i < npts_rec_arrays; i++){
+    std::cout << "Xe after peebles=" << Xe_array[i] << std::endl;
+  }
+
+
   Vector logXe = log(Xe_array);
   Vector logne = log(ne_array);
   log_Xe_of_x_spline.create(x_array, logXe);
@@ -208,15 +248,9 @@ int RecombinationHistory::rhs_peebles_ode(double x, const double *Xe, double *dX
   double phi2 = 0.448*log(epsilon_0/(k_b*T_b));
   double alpha2 = 8/sqrt(27*M_PI)*c*sigma_T*sqrt(epsilon_0/(k_b*T_b))*phi2;
   double beta = alpha2/pow(hbar,3)*pow(m_e*k_b*T_b/(2*M_PI),3./2.)*exp(-epsilon_0/(k_b*T_b));
-  double beta2 = alpha2/pow(hbar,3)*pow(m_e*k_b*T_b/(2*M_PI),3./2.)*exp(-epsilon_0/(4*k_b*T_b));
+  double beta2 = alpha2/pow(hbar,3)*pow(m_e*k_b*T_b/(2*M_PI),3./2.)*exp(-epsilon_0/(4.*k_b*T_b));
 
   double Cr = (Lambda_2s1s + Lambda_alpha)/(Lambda_2s1s+Lambda_alpha + beta2);
-
-  //=============================================================================
-  // TODO: Write the expression for dXedx
-  //=============================================================================
-  //...
-  //...
   
   dXedx[0] = Cr/H*(beta*(1-X_e) - n_b*alpha2*X_e*X_e);
 
