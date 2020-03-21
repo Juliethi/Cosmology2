@@ -51,6 +51,7 @@ x_rec, x_rec_saha = find_xrec_zrec(x, z, Xe, Xe_Saha)
 
 
 def plot_xe(x, Xe, Xe_Saha):
+    matplotlib.rcParams.update({'font.size': 16})
     fig, [ax1, ax2] = plt.subplots(1, 2, figsize=(14,6))
     ax1.semilogy(x,Xe, label=r"$X_e$")
     ax1.semilogy(x, Xe_Saha, label=r"$X_e$ (Saha)")
@@ -69,7 +70,8 @@ def plot_xe(x, Xe, Xe_Saha):
     ax2.set_xlabel("x")
     ax2.legend()
     
-    fig.tight_layout()
+    fig.suptitle("Fractional electron density")
+    #fig.tight_layout()
     fig.savefig("xe.pdf")
     plt.show()
 
@@ -77,7 +79,9 @@ def plot_tau(x, tau, dtau, ddtau):
     plt.semilogy(x,tau,label=r"$\tau$")
     plt.semilogy(x,-dtau, label=r"$-\tau$'")
     plt.semilogy(x,ddtau, label=r"$\tau$''")
-    plt.title(r"$\tau(x)$")
+    plt.title("Optical depth")
+    plt.xlabel("x")
+    plt.ylabel(r"$\tau(x)$")
     plt.ylim(1e-8,1e6)
     plt.xlim(-12,-0)
     plt.vlines(x_star, 1e-8, 1e6, color="mediumpurple", linestyle="-.", label=r"$x_{*}$")
@@ -114,6 +118,6 @@ def plot_g_scaled(x, g, dg, ddg):
 
 
 plot_xe(x, Xe, Xe_Saha)
-plot_tau(x, tau, dtau, ddtau)
-plot_g(x, g, dg, ddg)
-plot_g_scaled(x, g, dg, ddg)
+#plot_tau(x, tau, dtau, ddtau)
+#plot_g(x, g, dg, ddg)
+#plot_g_scaled(x, g, dg, ddg)
