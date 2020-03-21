@@ -52,6 +52,7 @@ class RecombinationHistory{
 
     // Splines contained in this class
     Spline log_Xe_of_x_spline{"Xe"};
+    Spline log_Xe_of_x_Saha_only_Spline{"Xe_Saha_only"};
     Spline log_ne_of_x_spline{"ne"};
     Spline tau_of_x_spline{"tau"}; 
     Spline dtaudx_of_x_spline{"dtaudx"};
@@ -90,6 +91,7 @@ class RecombinationHistory{
     double Xe_of_x(double x) const;
     double ne_of_x(double x) const;
     double get_Yp() const;
+    double Xe_of_x_Saha_only(double x) const;
 };
 
 #endif

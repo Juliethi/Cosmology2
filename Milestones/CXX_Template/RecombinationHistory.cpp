@@ -53,10 +53,6 @@ void RecombinationHistory::solve_number_density_electrons(){
   bool saha_regime = true;
   for(int i = 0; i < npts_rec_arrays; i++){
 
-    //==============================================================
-    // TODO: Get X_e from solving the Saha equation so
-    // implement the function electron_fraction_from_saha_equation
-    //==============================================================
     auto Xe_ne_data = electron_fraction_from_saha_equation(x_array[i]);
 
     // Electron fraction and number density
@@ -73,17 +69,6 @@ void RecombinationHistory::solve_number_density_electrons(){
       ne_array[i] = ne_current;
 
     } else {
-
-      std::cout << "hello it is i, peebles" << std::endl;
-
-      //==============================================================
-      // TODO: Compute X_e from current time til today by solving 
-      // the Peebles equation (NB: if you solve all in one go remember to
-      // exit the for-loop!)
-      // Implement rhs_peebles_ode
-      //==============================================================
-      //...
-      //...
 
       // The Peebles ODE equation
       ODESolver peebles_Xe_ode;
@@ -127,9 +112,7 @@ void RecombinationHistory::solve_number_density_electrons(){
     }
   }
   //Creating splines of log(Xe) and log(ne). The functions Xe_of_x and ne_of_x will... unlog this further down.
-  //for(int i = 0; i < npts_rec_arrays; i++){
-  //  std::cout << "Xe after peebles=" << Xe_array[i] << std::endl;
-  //}
+
 
 
   Vector logXe = log(Xe_array);
@@ -137,16 +120,20 @@ void RecombinationHistory::solve_number_density_electrons(){
   log_Xe_of_x_spline.create(x_array, logXe);
   log_ne_of_x_spline.create(x_array, logne);
 
-  //temporary
-  //tau_of_x_spline.create(x_array,x_array); 
-  //g_tilde_of_x_spline.create(x_array,x_array);
+  //Solving Xe for ONLY Saha to compare this with Peebles 
+  //Vector x_array_saha_only = Utils::linspace(x_start,x_end, npts_rec_arrays);
+  Vector Xe_array_saha_only(npts_rec_arrays);
+  for(int i = 0; i < npts_rec_arrays; i++){
 
-  //=============================================================================
-  // TODO: Spline the result. Implement and make sure the Xe_of_x, ne_of_x 
-  // functions are working
-  //=============================================================================
-  //...
-  //...
+    auto Xe_ne_data_Saha = electron_fraction_from_saha_equation(x_array[i]);
+    const double Xe_current_Saha = Xe_ne_data_Saha.first;
+    Xe_array_saha_only[i] = Xe_current_Saha;
+    std::cout << Xe_current_Saha << std::endl;
+  }
+  Vector logXe_Saha_only = log(Xe_array_saha_only);
+  log_Xe_of_x_Saha_only_Spline.create(x_array,logXe_Saha_only);
+
+
 
   Utils::EndTiming("Xe");
 }
@@ -311,7 +298,7 @@ void RecombinationHistory::solve_for_optical_depth_tau(){
   Vector g_tilde_array(npts_rec_arrays);
   for(int i; i < npts_rec_arrays; i++){
     g_tilde_array[i] = -dtaudx_array[i]*exp(-tau_scaled[i]);
-    std::cout << g_tilde_array[i] << std::endl;
+    //std::cout << g_tilde_array[i] << std::endl;
   }
 
   g_tilde_of_x_spline.create(x_array,g_tilde_array);
@@ -360,6 +347,10 @@ double RecombinationHistory::get_Yp() const{
   return Yp;
 }
 
+double RecombinationHistory::Xe_of_x_Saha_only(double x) const{
+  return exp(log_Xe_of_x_Saha_only_Spline(x));
+}
+
 //====================================================
 // Print some useful info about the class
 //====================================================
@@ -383,6 +374,7 @@ void RecombinationHistory::output(const std::string filename) const{
   auto print_data = [&] (const double x) {
     fp << x                    << " ";
     fp << Xe_of_x(x)           << " ";
+    fp << Xe_of_x_Saha_only(x) << " ";
     fp << ne_of_x(x)           << " ";
     fp << tau_of_x(x)          << " ";
     fp << dtaudx_of_x(x)       << " ";
