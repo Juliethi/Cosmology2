@@ -209,7 +209,7 @@ This puts a constraint on $\beta(T_b)$, namely that it should also have units $s
 Now, after inserting all $k_b$ we need in both $\alpha^{(2)}$ and $\phi_2$, we have $[\alpha^{(2)}] = kg^{-2}$. Again, we want $\alpha^{(2)}$ to cancel out the units of $[\frac{C_r}{H}n_HX_e^2] = s/m^3$. This means had to find a combination of constants giving $[kg^2m^3/s]$, which $\hbar^2/c$ does. Inserting this into $\alpha^{(2)}$ yields
 
 \begin{equation*}
-    \alpha^{(2)}(T_b) = =\frac{64 \pi}{\sqrt{27 \pi}} \frac{(\hbar\alpha)^{2}}{cm_{e}^{2}} \sqrt{\frac{\epsilon_{0}}{k_bT_{b}}} \phi_{2}\left(T_{b}\right), [m^3/s]
+    \alpha^{(2)}(T_b)  =\frac{64 \pi}{\sqrt{27 \pi}} \frac{(\hbar\alpha)^{2}}{cm_{e}^{2}} \sqrt{\frac{\epsilon_{0}}{k_bT_{b}}} \phi_{2}\left(T_{b}\right), [m^3/s]
 \end{equation*}
 
 with
@@ -218,11 +218,14 @@ with
     \phi_2(T_b) = 0.448\ln(\epsilon_0/k_b T_b).
 \end{equation*}
 
+
 Almost finished! Now all that's left is to get $[\beta(T_b)] = s^{-1}$. With the units for $\alpha^{(2)}$ known, we also know that $[\beta(T_b)] = m^3/s\cdot\left(kgK\right)^{3/2}$. This looked awfully familiar, so we just inserted the solution already found from the Saha equation, namely that $k_b^{3/2}/\hbar^3$, which returns
 
 \begin{equation*}
     \beta(T_b) = \frac{\alpha^{(2)}}{\hbar^3} \left(\frac{m_e k_b T_b}{2\pi}\right)^{3/2} e^{-\epsilon_0/k_b T_b}, [s^{-1}].
 \end{equation*}
+
+test test test
 
 Now all equations has the proper dimentionality and can be implemented in the code. \textit{Phew. Now that was neither brief, short or sweet, and it might be a bit more headache-inducing than I meant for it to be.}
 
