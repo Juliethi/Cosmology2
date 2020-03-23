@@ -116,8 +116,9 @@ def plot_g_scaled(x, g, dg, ddg):
     plt.savefig("g_scaled.pdf")
     plt.show()
 
+#print(np.log(Xe[-1]))
 
-plot_xe(x, Xe, Xe_Saha)
+#plot_xe(x, Xe, Xe_Saha)
 #plot_tau(x, tau, dtau, ddtau)
 #plot_g(x, g, dg, ddg)
 #plot_g_scaled(x, g, dg, ddg)

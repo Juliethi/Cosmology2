@@ -79,7 +79,7 @@ void RecombinationHistory::solve_number_density_electrons(){
       double x_start_peebles = x_array[i];
       Vector X_peebles = Utils::linspace(x_start_peebles, x_end, npts_rec_arrays-i);
 
-      //Not sure if I want to use linspace or for loop here, both seem to do the same but... linspace feels dangerous.
+      //Not sure if I want to use linspace or for loop here, both seem to do the same but... linspace feels dangerous, too python-y. It looks good tho:)
 
       //Vector X_peebles(npts_rec_arrays-i);
       //for(int j=0; j<npts_rec_arrays-i; j++){
@@ -120,8 +120,9 @@ void RecombinationHistory::solve_number_density_electrons(){
   log_Xe_of_x_spline.create(x_array, logXe);
   log_ne_of_x_spline.create(x_array, logne);
 
-  //Solving Xe for ONLY Saha to compare this with Peebles 
-  //Vector x_array_saha_only = Utils::linspace(x_start,x_end, npts_rec_arrays);
+
+
+  //Solving Xe for ONLY Saha to compare this with full solution 
   Vector Xe_array_saha_only(npts_rec_arrays);
   for(int i = 0; i < npts_rec_arrays; i++){
 
@@ -169,13 +170,13 @@ std::pair<double,double> RecombinationHistory::electron_fraction_from_saha_equat
   //std::cout << "C=" << C << std::endl;
   double Xe;
 
-  //End points. If C is very large(it is hot), a is very small => super duper early universe => X_e = 1
+  //End points. If C is very large(it is hot), a is very small? => super duper early universe => X_e = 1
   if(C > 1e6){
     //std::cout << "henlo i am big" << std::endl;
     Xe = 1;
   } 
 
-  //If C is very small, the Saha equation approaches 0, to mitigate instabilites we set it to 0. But since we're logging later, we set it to something small
+  //If C is very small, the Saha equation approaches 0, to mitigate instabilites we set it to something small. we could set it to 0 but that would create problems later when taking the log
   if(C<1e-20){
     //std::cout << "henlo i am smol" << std::endl;
     Xe = 1e-50;
