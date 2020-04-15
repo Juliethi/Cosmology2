@@ -165,21 +165,21 @@ Vector Perturbations::set_ic(const double x, const double k) const{
   // ...
   // ...
   double Hp = cosmo->Hp_of_x(x);
-  double Psi = -2/3;
+  double Psi_ic = -2/3;
   
 
 
   // SET: Scalar quantities (Gravitational potential, baryons and CDM)
-  Phi = -Psi;
+  Phi = -Psi_ic;
 
-  delta_cdm = -3/2*Psi;
+  delta_cdm = -3/2*Psi_ic;
   delta_b = delta_cdm;
   v_cdm = -Constants.c*k/(2*Hp);
   v_b = v_cdm;
 
   // SET: Photon temperature perturbations (Theta_ell)
-  Theta[0] = -0.5*Psi;
-  Theta[1] = Constants.c*k/(6*Hp)*Psi;
+  Theta[0] = -0.5*Psi_ic;
+  Theta[1] = Constants.c*k/(6*Hp)*Psi_ic;
 
   // SET: Neutrino perturbations (N_ell)
   if(neutrinos){
@@ -390,11 +390,35 @@ int Perturbations::rhs_tight_coupling_ode(double x, double k, const double *y, d
   double const ddtaudx = rec-> ddtauddx_of_x(x);
 
   double const Hp = cosmo->Hp_of_x(x);
+  double const dHpdx = cosmo->dHpdx_of_x(x);
+
   double const Omega_r = cosmo->get_OmegaR(0);
   double const Omega_b = cosmo->get_OmegaB(0);
+  double const Omega_cdm = cosmo->get_OmegaCDM(0);
+  double const H0 = cosmo->get_H0();
 
   double R = 4*Omega_r/(3*Omega_b*exp(x));
-  double q = 1;
+  double ck_over_Hp = Constants.c*k/Hp;
+  double dHpdx_over_Hp = dHpdx/Hp;
+  double Theta2 = -20/(45*dtaudx)*ck_over_Hp*Theta[1];
+
+  double Psi = -Phi - 12*H0*H0/(Constants.c*Constants.c*k*k*exp(2*x))*Omega_r*Theta2;
+  dPhidx = Psi - ck_over_Hp*ck_over_Hp*1/3*Phi + H0*H0/(2*Hp*Hp)*(Omega_cdm*exp(-x)*delta_cdm + Omega_b*exp(-x)*delta_b + 4*Omega_r*exp(-2*x)*Theta[0]);
+  
+  dThetadx[0] = -ck_over_Hp*Theta[1]- dPhidx;
+  
+  double q = -((1-R)*dtaudx + (1+R)*ddtaudx)*(3*Theta[1]+v_b) - ck_over_Hp*Psi + (1-dHpdx_over_Hp)*ck_over_Hp*(-Theta[0] + 2*Theta2) - ck_over_Hp*dThetadx[0];
+
+  ddelta_cdmdx = ck_over_Hp*v_cdm - 3*dPhidx;
+  ddelta_bdx = ck_over_Hp*v_b - 3*dPhidx;
+
+  dv_cdmdx = -v_cdm - ck_over_Hp*Psi;
+
+  dv_bdx = 1/(1+R)*(-v_b - ck_over_Hp*Psi + R*(q + ck_over_Hp*(-Theta[0] + 2*Theta2)-ck_over_Hp*Psi));
+
+  dThetadx[1] = 1/3*(q-dv_bdx);
+
+  
   // SET: Scalar quantities (Phi, delta, v, ...)
   // ...
   // ...
