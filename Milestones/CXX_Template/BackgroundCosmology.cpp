@@ -68,14 +68,9 @@ double BackgroundCosmology::Hp_of_x(double x) const{
 }
 
 double BackgroundCosmology::dHpdx_of_x(double x) const{
-
-  //=============================================================================
-  // TODO: Implement...
-  //=============================================================================
-  //...
-  //...
-
-  return 0.0;
+  double A = (OmegaB + OmegaCDM)*exp(-x) + 2*OmegaR*exp(-2*x) - 2*OmegaLambda*exp(2*x);
+  double B = (OmegaB + OmegaCDM)*exp(-x) + OmegaR*exp(-2*x) + OmegaLambda*exp(2*x);
+  return -H0/2 * A/sqrt(B);
 }
 
 double BackgroundCosmology::ddHpddx_of_x(double x) const{

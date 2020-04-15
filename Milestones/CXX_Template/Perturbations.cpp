@@ -164,14 +164,22 @@ Vector Perturbations::set_ic(const double x, const double k) const{
   //=============================================================================
   // ...
   // ...
+  double Hp = cosmo->Hp_of_x(x);
+  double Psi = -2/3;
+  
+
 
   // SET: Scalar quantities (Gravitational potential, baryons and CDM)
-  // ...
-  // ...
+  Phi = -Psi;
+
+  delta_cdm = -3/2*Psi;
+  delta_b = delta_cdm;
+  v_cdm = -Constants.c*k/(2*Hp);
+  v_b = v_cdm;
 
   // SET: Photon temperature perturbations (Theta_ell)
-  // ...
-  // ...
+  Theta[0] = -0.5*Psi;
+  Theta[1] = Constants.c*k/(6*Hp)*Psi;
 
   // SET: Neutrino perturbations (N_ell)
   if(neutrinos){
@@ -378,7 +386,15 @@ int Perturbations::rhs_tight_coupling_ode(double x, double k, const double *y, d
   //=============================================================================
   // TODO: fill in the expressions for all the derivatives
   //=============================================================================
+  double const dtaudx = rec-> dtaudx_of_x(x);
+  double const ddtaudx = rec-> ddtauddx_of_x(x);
 
+  double const Hp = cosmo->Hp_of_x(x);
+  double const Omega_r = cosmo->get_OmegaR(0);
+  double const Omega_b = cosmo->get_OmegaB(0);
+
+  double R = 4*Omega_r/(3*Omega_b*exp(x));
+  double q = 1;
   // SET: Scalar quantities (Phi, delta, v, ...)
   // ...
   // ...
