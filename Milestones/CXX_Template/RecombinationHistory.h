@@ -51,11 +51,11 @@ class RecombinationHistory{
     void solve_for_optical_depth_tau();
 
     // Splines contained in this class
-    Spline log_Xe_of_x_spline{"Xe"};
+    //Spline log_Xe_of_x_spline{"Xe"};
     Spline log_Xe_of_x_Saha_only_Spline{"Xe_Saha_only"};
     Spline log_ne_of_x_spline{"ne"};
     Spline tau_of_x_spline{"tau"}; 
-    Spline dtaudx_of_x_spline{"dtaudx"};
+    //Spline dtaudx_of_x_spline{"dtaudx"};
     Spline ddtaudx_of_x_spine{"ddtaudx"};
     Spline g_tilde_of_x_spline{"g"}; 
     Spline dgdx_of_x_spline{"dgdx"};
@@ -80,6 +80,10 @@ class RecombinationHistory{
 
     // Output some data to file
     void output(const std::string filename) const;
+
+    //Making some splines public so I can get them in the perturbations code, since the binary search for values only take splines?
+    Spline log_Xe_of_x_spline{"Xe"};
+    Spline dtaudx_of_x_spline{"dtaudx"};
 
     // Get functions that we must implement
     double tau_of_x(double x) const;

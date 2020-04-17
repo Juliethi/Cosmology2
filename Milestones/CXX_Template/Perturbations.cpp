@@ -21,7 +21,7 @@ void Perturbations::solve(){
   integrate_perturbations();
 
   // Compute source functions and spline the result
-  compute_source_functions();
+  //compute_source_functions();
 }
 
 //====================================================
@@ -37,7 +37,8 @@ void Perturbations::integrate_perturbations(){
   // Start at k_min end at k_max with n_k points with either a
   // quadratic or a logarithmic spacing
   //===================================================================
-  Vector k_array(n_k);
+  Vector k_array = Utils::linspace(k_min, k_max, n_k);
+
 
   // Loop over all wavenumbers
   for(int ik = 0; ik < n_k; ik++){
@@ -69,6 +70,7 @@ void Perturbations::integrate_perturbations(){
       return rhs_tight_coupling_ode(x, k, y, dydx);
     };
 
+    ODESolver ode;
     // Integrate from x_start -> x_end_tight
     // ...
     // ...
@@ -278,6 +280,11 @@ Vector Perturbations::set_ic_after_tight_coupling(
 
 double Perturbations::get_tight_coupling_time(const double k) const{
   double x_tight_coupling_end = 0.0;
+  //getting spline objects from recombination class to utilize the binary search for value
+  Spline log_Xe_spline = rec->log_Xe_of_x_spline;
+  Spline dtaudx_spline = rec->dtaudx_of_x_spline;
+
+  double x1 = Utils::binary_search_for_value(log_Xe_spline, log(0.99), );
 
   //=============================================================================
   // TODO: compute and return x for when tight coupling ends
@@ -342,7 +349,7 @@ void Perturbations::compute_source_functions(){
   if(Constants.polarization){
     SE_spline.create (x_array, k_array, SE_array, "Source_Pol_x_k");
   }
-
+ 
   Utils::EndTiming("source");
 }
 
@@ -629,10 +636,10 @@ void Perturbations::output(const double k, const std::string filename) const{
     fp << get_Phi(x,k)       << " ";
     fp << get_Psi(x,k)       << " ";
     fp << get_Pi(x,k)        << " ";
-    fp << get_Source_T(x,k)  << " ";
-    fp << get_Source_T(x,k) * Utils::j_ell(5,   arg)           << " ";
-    fp << get_Source_T(x,k) * Utils::j_ell(50,  arg)           << " ";
-    fp << get_Source_T(x,k) * Utils::j_ell(500, arg)           << " ";
+    //fp << get_Source_T(x,k)  << " ";
+    //fp << get_Source_T(x,k) * Utils::j_ell(5,   arg)           << " ";
+    //fp << get_Source_T(x,k) * Utils::j_ell(50,  arg)           << " ";
+    //fp << get_Source_T(x,k) * Utils::j_ell(500, arg)           << " ";
     fp << "\n";
   };
   std::for_each(x_array.begin(), x_array.end(), print_data);
