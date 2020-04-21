@@ -487,22 +487,21 @@ int Perturbations::rhs_tight_coupling_ode(double x, double k, const double *y, d
 
   double Psi = -Phi - 12.*H0*H0/(Constants.c*Constants.c*k*k*exp(2*x))*Omega_r*Theta2;
 
-  dPhidx = Psi - ck_over_Hp*ck_over_Hp*1/3*Phi + H0*H0/(2*Hp*Hp)*(Omega_cdm*exp(-x)*delta_cdm + Omega_b*exp(-x)*delta_b + 4*Omega_r*exp(-2*x)*Theta[0]);
+  dPhidx = Psi - ck_over_Hp*ck_over_Hp*1/3*Phi + H0*H0/(2.*Hp*Hp)*(Omega_cdm*exp(-x)*delta_cdm + Omega_b*exp(-x)*delta_b + 4.*Omega_r*exp(-2*x)*Theta[0]);
   
   dThetadx[0] = -ck_over_Hp*Theta[1]- dPhidx;
   
-  double const q = -((1-R)*dtaudx + (1+R)*ddtaudx)*(3*Theta[1]+v_b) - ck_over_Hp*Psi + (1-dHpdx_over_Hp)*ck_over_Hp*(-Theta[0] + 2*Theta2) - ck_over_Hp*dThetadx[0];
+  double q = (-((1-R)*dtaudx + (1+R)*ddtaudx)*(3.*Theta[1]+v_b) - ck_over_Hp*Psi + (1-dHpdx_over_Hp)*ck_over_Hp*(-Theta[0] + 2.*Theta2) - ck_over_Hp*dThetadx[0])/((1+R)*ddtaudx + dHpdx_over_Hp - 1);
 
-  ddelta_cdmdx = ck_over_Hp*v_cdm - 3*dPhidx;
+  ddelta_cdmdx = ck_over_Hp*v_cdm - 3.*dPhidx;
 
-  ddelta_bdx = ck_over_Hp*v_b - 3*dPhidx;
+  ddelta_bdx = ck_over_Hp*v_b - 3.*dPhidx;
 
   dv_cdmdx = -v_cdm - ck_over_Hp*Psi;
 
   dv_bdx = 1/(1+R)*(-v_b - ck_over_Hp*Psi + R*(q + ck_over_Hp*(-Theta[0] + 2*Theta2)-ck_over_Hp*Psi));
 
-  dThetadx[1] = 1/3*(q-dv_bdx);
-
+  dThetadx[1] = 1./3.*(q-dv_bdx);
 
   
 
