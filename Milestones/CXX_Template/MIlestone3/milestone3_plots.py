@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 data = np.genfromtxt("../perturbations_k0.01.txt")
 #x, theta0, theta1, Phi, Psi, vb, v_cdm, delta_b, delta_cdm
-"""
+
 n = int(len(data[:,0]))
 x = data[:,0]
 z = 1/np.exp(x) - 1
@@ -44,5 +44,5 @@ plt.plot(x,delta_b)
 plt.plot(x,delta_cdm)
 plt.title("deltas")
 plt.show()
-"""
+
 

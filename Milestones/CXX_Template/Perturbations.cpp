@@ -132,16 +132,16 @@ void Perturbations::integrate_perturbations(){
 
       const double ck_over_Hp = Constants.c*k/Hp;
       //theta0 index = n_scalars_tc, theta_l index = n_scalars_tc + l
-      double Theta1 = all_solutions[Constants.n_scalars_tc+1][k][ix];
+      double Theta1 = all_solutions[Constants.ind_start_theta_tc+1][k][ix];
       double Theta2 = -20./(45*dtaudx)*ck_over_Hp*Theta1;
 
       double Phi = all_solutions[Constants.ind_Phi_tc][k][ix];
       //Solving psi 
-      all_solutions[Constants.n_ell_tot_tc + 1][k][ix] = -Phi - 12.*H0*H0/(Constants.c*Constants.c*k*k*exp(2*x))*OmegaR*Theta2;
+      all_solutions[Constants.n_ell_tot_tc][k][ix] = -Phi - 12.*H0*H0/(Constants.c*Constants.c*k*k*exp(2*x))*OmegaR*Theta2;
     }
     
     for(int ix = index_x_end_tight +1; ix < n_x; ix++){
-      all_solutions[Constants.n_ell_tot_tc + 1][k][ix] = all_solutions[Constants.n_ell_tot_tc + 1][k][index_x_end_tight];
+      all_solutions[Constants.n_ell_tot_tc][k][ix] = all_solutions[Constants.n_ell_tot_tc + 1][k][index_x_end_tight];
     }
 
     //all_solutions[component][k][x]
@@ -253,7 +253,7 @@ void Perturbations::integrate_perturbations(){
   v_cdm_spline.create(x_array, k_array, all_solutions_flattened[Constants.ind_vcdm_tc], "v_cdm_spline"); //2
   v_b_spline.create(x_array, k_array,all_solutions_flattened[Constants.ind_vb_tc], "v_b_spline"); //3
   Phi_spline.create(x_array,k_array, all_solutions_flattened[Constants.ind_Phi_tc], "Phi_spline"); //4
-  //Psi_spline.create(x_array, k_array, all_solutions_flattened[Constants.n_ell_tot_tc], "Psi_spline" ); //7
+  Psi_spline.create(x_array, k_array, all_solutions_flattened[Constants.n_ell_tot_tc], "Psi_spline" ); //7
 
   Theta_0_spline.create(x_array, k_array, all_solutions_flattened[Constants.ind_start_theta_tc], "Theta_0_spline"); //5
   Theta_1_spline.create(x_array, k_array, all_solutions_flattened[Constants.ind_start_theta_tc+1], "Theta_1_spline"); //6
@@ -785,7 +785,7 @@ void Perturbations::output(const double k, const std::string filename) const{
     fp << get_Theta(x,k,1)   << " ";
     //fp << get_Theta(x,k,2)   << " ";
     fp << get_Phi(x,k)       << " ";
-    //fp << get_Psi(x,k)       << " ";
+    fp << get_Psi(x,k)       << " ";
     fp << get_v_b(x,k)       << " ";
     fp << get_v_cdm(x,k)     << " ";
     fp << get_delta_b(x,k)   << " ";
