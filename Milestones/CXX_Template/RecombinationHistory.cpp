@@ -117,7 +117,7 @@ void RecombinationHistory::solve_number_density_electrons(){
 
   Vector logXe = log(Xe_array);
   Vector logne = log(ne_array);
-  log_Xe_of_x_spline.create(x_array, logXe);
+  log_Xe_of_x_spline.create(x_array, logXe, "log_Xe_spline");
   log_ne_of_x_spline.create(x_array, logne);
 
 
@@ -129,7 +129,7 @@ void RecombinationHistory::solve_number_density_electrons(){
     auto Xe_ne_data_Saha = electron_fraction_from_saha_equation(x_array[i]);
     const double Xe_current_Saha = Xe_ne_data_Saha.first;
     Xe_array_saha_only[i] = Xe_current_Saha;
-    std::cout << Xe_current_Saha << std::endl;
+    //std::cout << Xe_current_Saha << std::endl;
   }
   Vector logXe_Saha_only = log(Xe_array_saha_only);
   log_Xe_of_x_Saha_only_Spline.create(x_array,logXe_Saha_only);
@@ -292,7 +292,7 @@ void RecombinationHistory::solve_for_optical_depth_tau(){
   }
 
   tau_of_x_spline.create(x_array,tau_scaled);
-  dtaudx_of_x_spline.create(x_array,dtaudx_array);
+  dtaudx_of_x_spline.create(x_array,dtaudx_array, "dtaudx");
   //ddtaudx is created in the function? 
 
 

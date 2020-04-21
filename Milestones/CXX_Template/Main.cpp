@@ -50,7 +50,7 @@ int main(int argc, char **argv){
   rec.output("recombination.txt");
   
   // Remove when module is completed
-  return 0;
+  //return 0;
 
   //=========================================================================
   // Module III
@@ -58,6 +58,7 @@ int main(int argc, char **argv){
  
   // Solve the perturbations
   Perturbations pert(&cosmo, &rec);
+  pert.solve();
   pert.info();
   
   // Output perturbation quantities
