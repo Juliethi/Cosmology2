@@ -38,22 +38,24 @@ void Perturbations::integrate_perturbations(){
   // quadratic or a logarithmic spacing
   //===================================================================
 
-  Vector k_array_log = Utils::linspace(log(k_min), log(k_max), n_k);
+  //Using the quadratic spacing found in Callin
   Vector k_array(n_k);
   for(int i = 0; i < n_k; i++){
-    k_array[i] = exp(k_array_log[i]);
+    double c = i/100.;
+    k_array[i] = k_min + (k_max - k_min)*c*c;
   }
   
   Vector x_array = Utils::linspace(x_start,x_end,n_x);
 
   Vector2D kx_array(n_k, Vector(n_x));
-  Vector3D all_solutions(Constants.n_ell_tot_full, kx_array);
-  //all_solutions[component][k][x]
+  Vector3D all_solutions(Constants.n_ell_tot_full+1, kx_array);
+  //pluss1 because we also want to include Psi
+  //all_solutions[y_i][k][x]
 
 
   // Loop over all wavenumbers
-  for(int ik = 0; ik < n_k; ik++){
-    std::cout << "ik=" << ik << std::endl;
+  for(int ik = 0; ik < 1; ik++){
+    //std::cout << "ik=" << ik << std::endl;
     // Progress bar...
 
     if( (10*ik) / n_k != (10*ik+10) / n_k ) {
@@ -71,15 +73,13 @@ void Perturbations::integrate_perturbations(){
 
     //finding what index that corresponds the closest to x_end_tight to ensure that everything matches with the full x-array 
     int index_x_end_tight = (int) round((x_end_tight_temp-x_start)/(x_end-x_start)*n_x);
-    //std::cout << "index of x end tight= " << index_x_end_tight << std::endl;
-    //std::cout << "x end tight coupling with found index= " << x_array[index_x_end_tight] << std::endl;
     double x_end_tight = x_array[index_x_end_tight];
 
-    //std::cout << "sug pikk 3" << std::endl;
+
 
     Vector x_array_tc = Utils::linspace(x_start, x_end_tight, index_x_end_tight+1);
 
-    //std::cout << "sug pikk 4" << std::endl;
+
     //===================================================================
     // TODO: Tight coupling integration
     // Remember to implement the routines:
@@ -90,33 +90,59 @@ void Perturbations::integrate_perturbations(){
     // Set up initial conditions in the tight coupling regime
     auto y_tight_coupling_ini = set_ic(x_start, k);
 
-    //std::cout << "sug pikk 5" << std::endl;
+
     // The tight coupling ODE system
     ODEFunction dydx_tight_coupling = [&](double x, const double *y, double *dydx){
       return rhs_tight_coupling_ode(x, k, y, dydx);
     };
 
-    //std::cout << "sug pikk 6" << std::endl;
+
     ODESolver ode_tc;
     ode_tc.solve(dydx_tight_coupling, x_array_tc, y_tight_coupling_ini);
 
-    //std::cout << "sug pikk 7" << std::endl;
 
-    /*
+    //Looping over all components, adding them to the full-solutions-vector   
     for(int i = 0; i < Constants.n_ell_tot_tc; i++){
-      //std::cout << "sug pikk 8" << std::endl;
       auto solution_i = ode_tc.get_data_by_component(i);
-      //std::cout << "sug pikk 9" << std::endl;
-      for(int j = 0; j < index_x_end_tight; j++){
+      for(int j = 0; j < index_x_end_tight+1; j++){
         all_solutions[i][k][j] = solution_i[j];
-        //std::cout << "sug pikk 10" << std::endl;
-        //std::cout << "i=" << i << std::endl;
-        //std::cout << "j=" << j << std::endl;
-        //std::cout << "k=" << k << std::endl;
-
+        //all_solutions[y_i][k][x]
+        //std::cout << "all solutions for component i, k, x " << i <<  " " <<j << " " << k << " " << all_solutions[i][k][j] << std::endl;
       }
     }
-    */
+    
+    //Loop to fill rest of all_solutions for now with dummy values so spline can work
+    for(int i = 0; i < Constants.n_ell_tot_tc; i++){
+      auto solution_i = ode_tc.get_data_by_component(i);
+      for(int j = index_x_end_tight+1; j < n_x; j++){
+        all_solutions[i][k][j] = solution_i[index_x_end_tight];
+        //all_solutions[y_i][k][x]
+        
+      }
+      //std::cout << "last value y_i[-1] for component i " << i << " " << all_solutions[i][k][index_x_end_tight] << std::endl;
+    }
+
+    //Finding solution for Psi as well
+    for(int ix = 0; ix<index_x_end_tight+1; ix++){
+      double x = x_array[ix];
+      double Hp = cosmo->Hp_of_x(x);
+      double H0 = cosmo->get_H0();
+      double OmegaR = cosmo->get_OmegaR(0);
+      double dtaudx = rec->dtaudx_of_x(x);
+
+      const double ck_over_Hp = Constants.c*k/Hp;
+      //theta0 index = n_scalars_tc, theta_l index = n_scalars_tc + l
+      double Theta1 = all_solutions[Constants.n_scalars_tc+1][k][ix];
+      double Theta2 = -20./(45*dtaudx)*ck_over_Hp*Theta1;
+
+      double Phi = all_solutions[Constants.ind_Phi_tc][k][ix];
+      //Solving psi 
+      all_solutions[Constants.n_ell_tot_tc + 1][k][ix] = -Phi - 12.*H0*H0/(Constants.c*Constants.c*k*k*exp(2*x))*OmegaR*Theta2;
+    }
+    
+    for(int ix = index_x_end_tight +1; ix < n_x; ix++){
+      all_solutions[Constants.n_ell_tot_tc + 1][k][ix] = all_solutions[Constants.n_ell_tot_tc + 1][k][index_x_end_tight];
+    }
 
     //all_solutions[component][k][x]
   
@@ -173,6 +199,83 @@ void Perturbations::integrate_perturbations(){
   }
   Utils::StartTiming("integrateperturbation");
 
+
+  //TEST SPLINES
+  /*
+  Spline2D delta_cdm_spline{"delta_cdm_spline"};
+  Spline2D delta_b_spline{"delta_b_spline"};
+  Spline2D v_cdm_spline{"v_cdm_spline"};
+  Spline2D v_b_spline{"v_b_spline"};
+  Spline2D Phi_spline{"Phi_spline"};
+  Spline2D Pi_spline{"Pi_spline"};
+  Spline2D Psi_spline{"Psi_spline"};
+
+  Spline2D Theta_0_spline{"Theta_0_spline"};
+  Spline2D Theta_1_spline{"Theta_1_spline"};
+  Spline2D Theta_2_spline{"Theta_2_spline"};
+
+  std::vector<Spline2D> Theta_spline;
+  */
+
+  /*
+  const int n_scalars_tc        = 5;
+  const int n_ell_theta_tc      = 2;
+  const int n_ell_thetap_tc     = 0;
+  const int n_ell_neutrinos_tc  = n_ell_neutrinos;
+  const int n_ell_tot_tc        = n_scalars_tc + n_ell_theta_tc + n_ell_thetap_tc + n_ell_neutrinos;
+  const int ind_deltacdm_tc     = 0; 
+  const int ind_deltab_tc       = 1;
+  const int ind_vcdm_tc         = 2;
+  const int ind_vb_tc           = 3;
+  const int ind_Phi_tc          = 4;
+  const int ind_start_theta_tc  = n_scalars_tc;
+  const int ind_start_thetap_tc = ind_start_theta_tc  + n_ell_theta_tc;
+  const int ind_start_nu_tc     = ind_start_thetap_tc + n_ell_thetap_tc;
+  */
+
+
+ Vector2D all_solutions_flattened(Constants.n_ell_tot_tc+1, Vector(n_x*n_k));
+
+
+  for(int i=0; i<Constants.n_ell_tot_tc+1; i++){
+    for(int ix=0; ix<n_x; ix++){
+      for(int ik=0; ik < n_k; ik++){
+        all_solutions_flattened[i][ix+n_x*ik] = all_solutions[i][ik][ix];
+      }
+    }  
+  }
+  
+
+  //I feel like this shoild be possible to do in a loop what am i missing here grrrr
+  
+  delta_cdm_spline.create(x_array, k_array, all_solutions_flattened[Constants.ind_deltacdm_tc], "delta_cdm_spline"); //0
+  delta_b_spline.create(x_array, k_array, all_solutions_flattened[Constants.ind_deltab_tc],"delta_b_spline" ); //1
+  v_cdm_spline.create(x_array, k_array, all_solutions_flattened[Constants.ind_vcdm_tc], "v_cdm_spline"); //2
+  v_b_spline.create(x_array, k_array,all_solutions_flattened[Constants.ind_vb_tc], "v_b_spline"); //3
+  Phi_spline.create(x_array,k_array, all_solutions_flattened[Constants.ind_Phi_tc], "Phi_spline"); //4
+  //Psi_spline.create(x_array, k_array, all_solutions_flattened[Constants.n_ell_tot_tc], "Psi_spline" ); //7
+
+  Theta_0_spline.create(x_array, k_array, all_solutions_flattened[Constants.ind_start_theta_tc], "Theta_0_spline"); //5
+  Theta_1_spline.create(x_array, k_array, all_solutions_flattened[Constants.ind_start_theta_tc+1], "Theta_1_spline"); //6
+  
+  
+  /*
+  std::cout << "k_array[0] " << k_array[0] << std::endl;
+  std::cout << "k_array[n_k] " << k_array[n_k-1] << std::endl;
+  std::cout << "k_min " << k_min << std::endl;
+  std::cout << "k_max " << k_max << std::endl;
+  for(int i = 0; i<n_k; i++){
+    std::cout << k_array[i] << std::endl;
+  }
+  */
+
+
+  //Warning Spline2D[Phi_spline] y = 3.08568e+20 is out of bounds (1.62039e-27,9.5289e-24)
+
+
+  
+  
+
   //=============================================================================
   // TODO: Make all splines needed: Theta0,Theta1,Theta2,Phi,Psi,...
   //=============================================================================
@@ -213,18 +316,9 @@ Vector Perturbations::set_ic(const double x, const double k) const{
   double *Theta        = &y_tc[Constants.ind_start_theta_tc];
   //double *Nu           = &y_tc[Constants.ind_start_nu_tc];
 
-
-  //=============================================================================
-  // TODO: Set the initial conditions in the tight coupling regime
-  //=============================================================================
-  // ...
-  // ...
-  
   
   double Hp = cosmo->Hp_of_x(x);
   double Psi_ic = -2/3;
-
-  
 
   // SET: Scalar quantities (Gravitational potential, baryons and CDM)
   
@@ -502,11 +596,6 @@ int Perturbations::rhs_tight_coupling_ode(double x, double k, const double *y, d
   dv_bdx = 1/(1+R)*(-v_b - ck_over_Hp*Psi + R*(q + ck_over_Hp*(-Theta[0] + 2*Theta2)-ck_over_Hp*Psi));
 
   dThetadx[1] = 1./3.*(q-dv_bdx);
-
-  
-
-
-
   return GSL_SUCCESS;
 }
 
@@ -607,7 +696,16 @@ double Perturbations::get_Source_E(const double x, const double k) const{
   return SE_spline(x,k);
 }
 double Perturbations::get_Theta(const double x, const double k, const int ell) const{
-  return Theta_spline[ell](x,k);
+  if(ell==0)
+    return Theta_0_spline(x,k);
+  if(ell==1)
+    return Theta_1_spline(x,k);
+  if(ell==2)
+    return Theta_2_spline(x,k);
+  if(ell>2)
+    std::cout << "no valid theta_ell value, abort mission" << std::endl;
+    return -1.0;
+  //return Theta_spline[ell](x,k);
 }
 double Perturbations::get_Theta_p(const double x, const double k, const int ell) const{
   return Theta_p_spline[ell](x,k);
@@ -685,10 +783,14 @@ void Perturbations::output(const double k, const std::string filename) const{
     fp << x                  << " ";
     fp << get_Theta(x,k,0)   << " ";
     fp << get_Theta(x,k,1)   << " ";
-    fp << get_Theta(x,k,2)   << " ";
+    //fp << get_Theta(x,k,2)   << " ";
     fp << get_Phi(x,k)       << " ";
-    fp << get_Psi(x,k)       << " ";
-    fp << get_Pi(x,k)        << " ";
+    //fp << get_Psi(x,k)       << " ";
+    fp << get_v_b(x,k)       << " ";
+    fp << get_v_cdm(x,k)     << " ";
+    fp << get_delta_b(x,k)   << " ";
+    fp << get_delta_cdm(x,k)   << " ";
+    //fp << get_Pi(x,k)        << " ";
     //fp << get_Source_T(x,k)  << " ";
     //fp << get_Source_T(x,k) * Utils::j_ell(5,   arg)           << " ";
     //fp << get_Source_T(x,k) * Utils::j_ell(50,  arg)           << " ";
