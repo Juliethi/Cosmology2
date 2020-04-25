@@ -1,11 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-data = np.genfromtxt("../perturbations_k0.01.txt")
+
+data01 = np.genfromtxt("../perturbations_k0.1.txt")
+data_001 = np.genfromtxt("../perturbations_k0.01.txt")
+data_0001 = np.genfromtxt("../perturbations_k0.001.txt")
 #x, theta0, theta1, Phi, Psi, vb, v_cdm, delta_b, delta_cdm
 
-n = int(len(data[:,0]))
-x = data[:,0]
+n = int(len(data01[:,0]))
+x = data01[:,0]
 z = 1/np.exp(x) - 1
 
 theta0 = data[:,1]

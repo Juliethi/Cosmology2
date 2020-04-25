@@ -69,7 +69,7 @@ void Perturbations::integrate_perturbations(){
 
 
   // Loop over all wavenumbers
-  for(int ik = 0; ik < 1; ik++){
+  for(int ik = 0; ik < n_k; ik++){
     //std::cout << "ik=" << ik << std::endl;
     // Progress bar...
     //std::cout << "ik" << ik << std::endl;
@@ -91,16 +91,10 @@ void Perturbations::integrate_perturbations(){
     int index_x_end_tight = (int) round((x_end_tight_temp-x_start)/(x_end-x_start)*(n_x-1));
     double x_end_tight = x_array[index_x_end_tight];
     int n_x_tc = index_x_end_tight+1;
-
-    std::cout << "n_x - n_x_tc = " << n_x-n_x_tc << std::endl;
-    std::cout << "n_x =" << n_x << std::endl;
-    std::cout << "n_x_tc = " << n_x_tc << std::endl;
   
     Vector x_array_tc = Utils::linspace(x_start, x_end_tight, n_x_tc);
-    Vector x_array_after_tc = Utils::linspace(x_end_tight, x_end, n_x - n_x_tc);
+    Vector x_array_after_tc = Utils::linspace(x_end_tight, x_end, n_x - n_x_tc+1);
 
-    std::cout << "size x_array_tc" << x_array_tc.size() << std::endl;
-    std::cout << "size_x_array_after_tc" << x_array_after_tc.size() << std::endl;
 
 
 
@@ -178,7 +172,7 @@ void Perturbations::integrate_perturbations(){
       auto solution_i = ode_full.get_data_by_component(i);
       for(int j = n_x_tc; j < n_x; j++){
         //std::cout << j << std::endl;
-        all_solutions[i][j][ik] = solution_i[j];
+        all_solutions[i][j][ik] = solution_i[j-index_x_end_tight];
       }
     }
     
@@ -468,7 +462,6 @@ double Perturbations::get_tight_coupling_time(const double k) const{
     }
   }
 
-
   double x_min1 = std::min(x1,x2);
   double x_min2 = std::min(x3,x_min1);
   x_tight_coupling_end = x_min2;
@@ -683,48 +676,6 @@ int Perturbations::rhs_full_ode(double x, double k, const double *y, double *dyd
   ddelta_bdx = ck_over_Hp*v_b - 3.*dPhidx;
   dv_cdmdx = -v_cdm - ck_over_Hp*Psi;
   dv_bdx = -v_b - ck_over_Hp*Psi +dtaudx*R*(3.*Theta[1] + v_b);
-  
-
-  /*
-  const double ck = Constants.c*k;
-  const double a  = exp(x);
-  const double Hp = cosmo->Hp_of_x(x);
-  const double dHpdx = cosmo->dHpdx_of_x(x);
-  const double H0 = cosmo->get_H0();
-  const double OmegaR   = cosmo->get_OmegaR(0);  //OMEGA0 OR OMEGA(x)???
-  const double OmegaCDM = cosmo->get_OmegaCDM(0);
-  const double OmegaB   = cosmo->get_OmegaB(0);
-  const double dtaudx   = rec->dtaudx_of_x(x);
-  const double ddtauddx = rec->ddtauddx_of_x(x);
-  const double R  = 4*OmegaR/(3*OmegaB*a);
-
-
-  // SET: Scalar quantities (Phi, delta, v, ...)
-  // ...
-  // ...
-  // ...
-  // const double Theta2 = -4.0*ck/(9.0*Hp*dtaudx)*Theta[1];  // Theta[2] doesn't exist in tc array, so we set it here.
-
-  const double Psi    = -Phi - 12.0*H0*H0/(ck*ck*a*a)*OmegaR*Theta[2];
-
-  dPhidx        = Psi - ck*ck/(3.0*Hp*Hp)*Phi + H0*H0/(2.0*Hp*Hp)*(OmegaCDM/a*delta_cdm + OmegaB/a*delta_b + 4.0*OmegaR/(a*a)*Theta[0]);
-  ddelta_cdmdx  = ck*v_cdm/(Hp) - 3.0*dPhidx;
-  dv_cdmdx      = -v_cdm - ck/Hp*Psi;
-  ddelta_bdx    = ck/Hp*v_b - 3.0*dPhidx;
-  dv_bdx        = -v_b - ck/Hp*Psi + dtaudx*R*(3*Theta[1] + v_b);
-  dThetadx[0]   = -ck/Hp*Theta[1] - dPhidx;
-  dThetadx[1]   = ck/(3.0*Hp)*Theta[0] - 2.0*ck/(3.0*Hp)*Theta[2] + ck/(3.0*Hp)*Psi + dtaudx*(Theta[1] + 1.0/3.0*v_b);
-  for(int l=2; l<Constants.n_ell_theta-1; l++){
-    double kd = (l == 2) ? 1 : 0;  // kronecker delta for l==2.
-    dThetadx[l] = l*ck/((2*l + 1)*Hp)*Theta[l-1] - (l + 1)*ck/((2*l + 1)*Hp)*Theta[l+1] + dtaudx*(Theta[l] - 0.1*Theta[2]*kd);
-  }
-  int l = Constants.n_ell_theta-1;
-  dThetadx[l] = ck/Hp*Theta[l-1] - Constants.c*(l+1.0)/(Hp*cosmo->eta_of_x(x))*Theta[l] + dtaudx*Theta[l];
-
-  
-  */
-  
-
 
   return GSL_SUCCESS;
 }
