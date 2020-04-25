@@ -39,15 +39,17 @@ void Perturbations::integrate_perturbations(){
   //===================================================================
 
   //Using the quadratic spacing found in Callin
-  //Vector k_array(n_k);
-  /*
+  Vector k_array(n_k);
+
   for(int i = 0; i < n_k; i++){
     double c = i/100.;
     k_array[i] = k_min + (k_max - k_min)*c*c;
   }
-  */
+
+  /*
   Vector log_k_array = Utils::linspace(log(k_min), log(k_max), n_k);
   Vector k_array = exp(log_k_array);
+  */
   
   Vector x_array = Utils::linspace(x_start,x_end,n_x);
 
@@ -93,7 +95,7 @@ void Perturbations::integrate_perturbations(){
     int n_x_tc = index_x_end_tight+1;
   
     Vector x_array_tc = Utils::linspace(x_start, x_end_tight, n_x_tc);
-    Vector x_array_after_tc = Utils::linspace(x_end_tight, x_end, n_x - n_x_tc+1);
+    Vector x_array_after_tc = Utils::linspace(x_end_tight, x_end, n_x - index_x_end_tight);
 
 
 
@@ -115,6 +117,7 @@ void Perturbations::integrate_perturbations(){
     };
 
 
+   
     ODESolver ode_tc;
     ode_tc.solve(dydx_tight_coupling, x_array_tc, y_tight_coupling_ini);
 
@@ -172,7 +175,7 @@ void Perturbations::integrate_perturbations(){
       auto solution_i = ode_full.get_data_by_component(i);
       for(int j = n_x_tc; j < n_x; j++){
         //std::cout << j << std::endl;
-        all_solutions[i][j][ik] = solution_i[j-index_x_end_tight];
+        all_solutions[i][j][ik] = solution_i[j-index_x_end_tight-1];
       }
     }
     
@@ -211,11 +214,12 @@ void Perturbations::integrate_perturbations(){
       const double ck_over_Hp = Constants.c*k/Hp;
       //theta0 index = ind_start_theta, theta_l index = ind_start_theta + l
       double Theta1 = all_solutions[Constants.ind_start_theta+1][ix][ik];
-      double Theta2 = -20./(45*dtaudx)*ck_over_Hp*Theta1;
-      //double Theta2 = all_solutions[Constants.ind_start_theta+2][k][ix];
-      double Phi = all_solutions[Constants.ind_Phi][ix][k];
+      //double Theta2 = -20./(45*dtaudx)*ck_over_Hp*Theta1;
+      double Theta2 = all_solutions[Constants.ind_start_theta+2][ix][ik];
+      double Phi = all_solutions[Constants.ind_Phi][ix][ik];
       //Solving psi 
       Psi_vector[ix][ik] = -Phi - 12.*H0*H0/(Constants.c*Constants.c*k*k*exp(2*x))*OmegaR*Theta2;
+      //Psi_vector[ix][ik] = -Phi;
       
     }
 
@@ -326,25 +330,24 @@ Vector Perturbations::set_ic(const double x, const double k) const{
   double *Theta        = &y_tc[Constants.ind_start_theta_tc];
   //double *Nu           = &y_tc[Constants.ind_start_nu_tc];
 
-
+  
   const double Hp = cosmo->Hp_of_x(x);
   const double Psi_ic = -2.0/3.0;
+  const double ck = Constants.c*k;
 
   // SET: Scalar quantities (Gravitational potential, baryons and CDM)
-
+  
   Phi = -Psi_ic;
 
   delta_cdm = -3.0/2.0*Psi_ic;
   delta_b = delta_cdm;
-  v_cdm = -Constants.c*k/(2.*Hp);
+  v_cdm = -ck/(2.*Hp)*Psi_ic;
   v_b = v_cdm;
-
+  
 
   // SET: Photon temperature perturbations (Theta_ell)
   Theta[0] = -0.5*Psi_ic;
-  Theta[1] = Constants.c*k/(6.*Hp)*Psi_ic;
-  
-
+  Theta[1] = ck/(6.*Hp)*Psi_ic;
   return y_tc;
 }
 
@@ -568,7 +571,7 @@ int Perturbations::rhs_tight_coupling_ode(double x, double k, const double *y, d
   //=============================================================================
   // TODO: fill in the expressions for all the derivatives
   //=============================================================================
-
+  
   const double dtaudx = rec-> dtaudx_of_x(x);
   const double ddtaudx = rec-> ddtauddx_of_x(x);
   const double Hp = cosmo->Hp_of_x(x);
@@ -596,7 +599,6 @@ int Perturbations::rhs_tight_coupling_ode(double x, double k, const double *y, d
 
 
   dThetadx[1] = 1./3.*(q-dv_bdx);
-
 
   return GSL_SUCCESS;
 }
@@ -676,6 +678,38 @@ int Perturbations::rhs_full_ode(double x, double k, const double *y, double *dyd
   ddelta_bdx = ck_over_Hp*v_b - 3.*dPhidx;
   dv_cdmdx = -v_cdm - ck_over_Hp*Psi;
   dv_bdx = -v_b - ck_over_Hp*Psi +dtaudx*R*(3.*Theta[1] + v_b);
+  
+
+  /* 
+  const double ck = Constants.c*k;
+  const double a  = exp(x);
+  const double Hp = cosmo->Hp_of_x(x);
+  const double dHpdx = cosmo->dHpdx_of_x(x);
+  const double H0 = cosmo->get_H0();
+  const double OmegaR   = cosmo->get_OmegaR();  //OMEGA0 OR OMEGA(x)???
+  const double OmegaCDM = cosmo->get_OmegaCDM();
+  const double OmegaB   = cosmo->get_OmegaB();
+  const double dtaudx   = rec->dtaudx_of_x(x);
+  const double ddtauddx = rec->ddtauddx_of_x(x);
+  const double R  = 4*OmegaR/(3*OmegaB*a);
+
+
+  const double Psi    = -Phi - 12.0*H0*H0/(ck*ck*a*a)*OmegaR*Theta[2];
+
+  dPhidx        = Psi - ck*ck/(3.0*Hp*Hp)*Phi + H0*H0/(2.0*Hp*Hp)*(OmegaCDM/a*delta_cdm + OmegaB/a*delta_b + 4.0*OmegaR/(a*a)*Theta[0]);
+  ddelta_cdmdx  = ck*v_cdm/(Hp) - 3.0*dPhidx;
+  dv_cdmdx      = -v_cdm - ck/Hp*Psi;
+  ddelta_bdx    = ck/Hp*v_b - 3.0*dPhidx;
+  dv_bdx        = -v_b - ck/Hp*Psi + dtaudx*R*(3*Theta[1] + v_b);
+  dThetadx[0]   = -ck/Hp*Theta[1] - dPhidx;
+  dThetadx[1]   = ck/(3.0*Hp)*Theta[0] - 2.0*ck/(3.0*Hp)*Theta[2] + ck/(3.0*Hp)*Psi + dtaudx*(Theta[1] + 1.0/3.0*v_b);
+  for(int l=2; l<Constants.n_ell_theta-1; l++){
+    double kd = (l == 2) ? 1 : 0;  // kronecker delta for l==2.
+    dThetadx[l] = l*ck/((2*l + 1)*Hp)*Theta[l-1] - (l + 1)*ck/((2*l + 1)*Hp)*Theta[l+1] + dtaudx*(Theta[l] - 0.1*Theta[2]*kd);
+  }
+  int l = Constants.n_ell_theta-1;
+  dThetadx[l] = ck/Hp*Theta[l-1] - Constants.c*(l+1.0)/(Hp*cosmo->eta_of_x(x))*Theta[l] + dtaudx*Theta[l];
+  */
 
   return GSL_SUCCESS;
 }

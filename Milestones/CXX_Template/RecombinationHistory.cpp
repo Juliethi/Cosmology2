@@ -198,7 +198,7 @@ std::pair<double,double> RecombinationHistory::electron_fraction_from_saha_equat
 // The right hand side of the dXedx Peebles ODE
 //====================================================
 int RecombinationHistory::rhs_peebles_ode(double x, const double *Xe, double *dXedx){
-
+  /*
   // Current value of a and X_e
   const double X_e         = Xe[0];
   const double a           = exp(x);
@@ -214,10 +214,11 @@ int RecombinationHistory::rhs_peebles_ode(double x, const double *Xe, double *dX
   const double lambda_2s1s = Constants.lambda_2s1s;
   const double epsilon_0   = Constants.epsilon_0;
   const double H0_over_h   = Constants.H0_over_h;
-  const double H0 = H0_over_h*h;
+  //const double H0 = H0_over_h*h;
 
   const double OmegaB = cosmo->get_OmegaB(); //todays value of omega_B
   const double H = cosmo -> H_of_x(x);
+  const double H0 = cosmo->get_H0();
   
   double rho_c = 3*H0*H0/(8*M_PI*G);
   
@@ -235,6 +236,51 @@ int RecombinationHistory::rhs_peebles_ode(double x, const double *Xe, double *dX
   double Cr = (Lambda_2s1s + Lambda_alpha)/(Lambda_2s1s+Lambda_alpha + beta2);
   
   dXedx[0] = Cr/H*(beta*(1-X_e) - n_b*alpha2*X_e*X_e);
+  */
+
+  //===============
+// Current value of a and X_e
+  const double X_e         = Xe[0];
+  const double a           = exp(x);
+
+  // Physical constants in SI units
+  const double k_b         = Constants.k_b;
+  const double G           = Constants.G;
+  const double c           = Constants.c;
+  const double m_e         = Constants.m_e;
+  const double hbar        = Constants.hbar;
+  const double m_H         = Constants.m_H;
+  const double sigma_T     = Constants.sigma_T;
+  const double lambda_2s1s = Constants.lambda_2s1s;
+  const double epsilon_0   = Constants.epsilon_0;
+
+  // Cosmological parameters
+  const double OmegaB    = cosmo->get_OmegaB();
+  const double T_b       = cosmo->get_TCMB()/a;
+  //const double rho_c     = cosmo->get_rho_crit();
+  const double H         = cosmo->H_of_x(x);
+  const double H0 = cosmo->get_H0();
+  const double rho_c = 3*H0*H0/(8*M_PI*G);
+  const double n_H = OmegaB*rho_c/(Constants.m_H*a*a*a);
+
+  // Commonly used combination of units, predifed for speed and prevention of loss of numerical precision.
+  const double c_hbar     = c*hbar;
+  const double ep0_c_hbar = epsilon_0/c_hbar;
+  const double kb_Tb      = k_b*T_b;
+  const double ep0_kb_Tb  = epsilon_0/kb_Tb;
+
+  // Expression in the Peebles RHS equation.
+  const double phi_2         = 0.448*log(ep0_kb_Tb);
+  const double n_1s          = (1 - X_e)*n_H;
+  const double Lambda_alpha = H*27*ep0_c_hbar*ep0_c_hbar*ep0_c_hbar/(64*M_PI*M_PI*n_1s);
+  const double Lambda_2s1s  = 8.227;
+  const double alpha_2      = 8/sqrt(3*M_PI)*sigma_T*c*sqrt(ep0_kb_Tb)*phi_2;
+  const double beta         = alpha_2*pow((m_e*kb_Tb/(2*M_PI*hbar*hbar)), 1.5)*exp(-ep0_kb_Tb);
+  // expression for beta has been inserted right into beta_2, to diminish the effect of the large exponents.
+  const double beta_2       = alpha_2*pow((m_e*kb_Tb/(2*M_PI*hbar*hbar)), 1.5)*exp(-0.25*ep0_kb_Tb);
+  const double Cr           = (Lambda_2s1s + Lambda_alpha)/(Lambda_2s1s + Lambda_alpha + beta_2);
+
+  dXedx[0] = Cr/H*(beta*(1 - X_e) - n_H*alpha_2*X_e*X_e);
 
   return GSL_SUCCESS;
 }
