@@ -69,7 +69,7 @@ void Perturbations::integrate_perturbations(){
 
 
   // Loop over all wavenumbers
-  for(int ik = 0; ik < 2; ik++){
+  for(int ik = 0; ik < 1; ik++){
     //std::cout << "ik=" << ik << std::endl;
     // Progress bar...
     //std::cout << "ik" << ik << std::endl;
@@ -91,10 +91,16 @@ void Perturbations::integrate_perturbations(){
     int index_x_end_tight = (int) round((x_end_tight_temp-x_start)/(x_end-x_start)*(n_x-1));
     double x_end_tight = x_array[index_x_end_tight];
     int n_x_tc = index_x_end_tight+1;
+
+    std::cout << "n_x - n_x_tc = " << n_x-n_x_tc << std::endl;
+    std::cout << "n_x =" << n_x << std::endl;
+    std::cout << "n_x_tc = " << n_x_tc << std::endl;
   
     Vector x_array_tc = Utils::linspace(x_start, x_end_tight, n_x_tc);
     Vector x_array_after_tc = Utils::linspace(x_end_tight, x_end, n_x - n_x_tc);
 
+    std::cout << "size x_array_tc" << x_array_tc.size() << std::endl;
+    std::cout << "size_x_array_after_tc" << x_array_after_tc.size() << std::endl;
 
 
 
@@ -123,9 +129,7 @@ void Perturbations::integrate_perturbations(){
     for(int i = 0; i < Constants.n_ell_tot_tc; i++){
       auto solution_i = ode_tc.get_data_by_component(i);
       for(int j = 0; j < n_x_tc; j++){
-        all_solutions[i][j][k] = solution_i[j];
-        //all_solutions[y_i][k][x]
-        //std::cout << "all solutions for component i, k, x " << i <<  " " <<j << " " << k << " " << all_solutions[i][k][j] << std::endl;
+        all_solutions[i][j][ik] = solution_i[j];
       }
     }
 
@@ -143,7 +147,7 @@ void Perturbations::integrate_perturbations(){
     Vector y_tc_last_value(Constants.n_ell_tot_full); 
     
     for(int i = 0; i<Constants.n_ell_tot_tc; i++){                   
-      y_tc_last_value[i] = all_solutions[i][index_x_end_tight][k];
+      y_tc_last_value[i] = all_solutions[i][index_x_end_tight][ik];
     }
 
     const double Hp = cosmo->Hp_of_x(x_end_tight);
@@ -161,9 +165,27 @@ void Perturbations::integrate_perturbations(){
     }
 
 
+    // The full ODE system
+    
+    ODEFunction dydx_full = [&](double x, const double *y, double *dydx){
+      return rhs_full_ode(x, k, y, dydx);
+    };
+
+    ODESolver ode_full;
+    ode_full.solve(dydx_full, x_array_after_tc, y_tc_last_value);
+    
+    for(int i = 0; i < Constants.n_ell_tot_full; i++){
+      auto solution_i = ode_full.get_data_by_component(i);
+      for(int j = n_x_tc; j < n_x; j++){
+        //std::cout << j << std::endl;
+        all_solutions[i][j][ik] = solution_i[j];
+      }
+    }
+    
     
 
-    // The full ODE system
+   // The full ODE system
+   /*
     ODEFunction dydx_full = [&](double x, const double *y, double *dydx){
       return rhs_full_ode(x, k, y, dydx);
     };
@@ -173,11 +195,15 @@ void Perturbations::integrate_perturbations(){
 
     for(int i = 0; i < Constants.n_ell_tot_full; i++){
       auto solution_i = ode_full.get_data_by_component(i);
-      for(int j = n_x_tc; j < x_end; j++){
-        all_solutions[i][j][k] = solution_i[j];
+      printf("\n\n component %d\n", i);
+      for(int m=index_x_end_tight; m<index_x_end_tight+10; m++){
+        printf("%f\n", solution_i[m]);
+      }
+      for(int j = n_x_tc; j < n_x; j++){
+        all_solutions[i][j][ik] = solution_i[j];
       }
     }
-
+    */
 
     //Calculating Psi
     for(int ix = 0; ix<n_x; ix++){
@@ -190,12 +216,12 @@ void Perturbations::integrate_perturbations(){
 
       const double ck_over_Hp = Constants.c*k/Hp;
       //theta0 index = ind_start_theta, theta_l index = ind_start_theta + l
-      double Theta1 = all_solutions[Constants.ind_start_theta+1][ix][k];
+      double Theta1 = all_solutions[Constants.ind_start_theta+1][ix][ik];
       double Theta2 = -20./(45*dtaudx)*ck_over_Hp*Theta1;
       //double Theta2 = all_solutions[Constants.ind_start_theta+2][k][ix];
       double Phi = all_solutions[Constants.ind_Phi][ix][k];
       //Solving psi 
-      Psi_vector[ix][k] = -Phi - 12.*H0*H0/(Constants.c*Constants.c*k*k*exp(2*x))*OmegaR*Theta2;
+      Psi_vector[ix][ik] = -Phi - 12.*H0*H0/(Constants.c*Constants.c*k*k*exp(2*x))*OmegaR*Theta2;
       
     }
 
@@ -258,15 +284,14 @@ void Perturbations::integrate_perturbations(){
   Theta_1_spline.create(x_array, k_array, all_solutions_flattened[Constants.ind_start_theta_tc+1], "Theta_1_spline"); //6
   
 
-  for(int ix = 0; ix <n_x; ix++){
-    double k_0 = k_array[0];
-    std::cout << k_0 << std::endl;
+  for(int ix =0; ix<n_x; ix++){
+    double k = k_array[0];
     double x = x_array[ix];
-    //std::cout << x << std::endl;
-    std::cout << "Psi_vector(x)=" << Psi_vector[ix][0] << std::endl;
-    std::cout << "Psi_spline(x)= " << Psi_spline(x, k_0) << std::endl;
-  }
+    //std::cout << "delta_cdm_vector" << all_solutions[Constants.ind_deltacdm][ix][0] << std::endl;
+    //std::cout << "delta_cdm_spline" << std::endl;
 
+  }  
+  
   //=============================================================================
   // TODO: Make all splines needed: Theta0,Theta1,Theta2,Phi,Psi,...
   //=============================================================================
@@ -660,6 +685,44 @@ int Perturbations::rhs_full_ode(double x, double k, const double *y, double *dyd
   dv_bdx = -v_b - ck_over_Hp*Psi +dtaudx*R*(3.*Theta[1] + v_b);
   
 
+  /*
+  const double ck = Constants.c*k;
+  const double a  = exp(x);
+  const double Hp = cosmo->Hp_of_x(x);
+  const double dHpdx = cosmo->dHpdx_of_x(x);
+  const double H0 = cosmo->get_H0();
+  const double OmegaR   = cosmo->get_OmegaR(0);  //OMEGA0 OR OMEGA(x)???
+  const double OmegaCDM = cosmo->get_OmegaCDM(0);
+  const double OmegaB   = cosmo->get_OmegaB(0);
+  const double dtaudx   = rec->dtaudx_of_x(x);
+  const double ddtauddx = rec->ddtauddx_of_x(x);
+  const double R  = 4*OmegaR/(3*OmegaB*a);
+
+
+  // SET: Scalar quantities (Phi, delta, v, ...)
+  // ...
+  // ...
+  // ...
+  // const double Theta2 = -4.0*ck/(9.0*Hp*dtaudx)*Theta[1];  // Theta[2] doesn't exist in tc array, so we set it here.
+
+  const double Psi    = -Phi - 12.0*H0*H0/(ck*ck*a*a)*OmegaR*Theta[2];
+
+  dPhidx        = Psi - ck*ck/(3.0*Hp*Hp)*Phi + H0*H0/(2.0*Hp*Hp)*(OmegaCDM/a*delta_cdm + OmegaB/a*delta_b + 4.0*OmegaR/(a*a)*Theta[0]);
+  ddelta_cdmdx  = ck*v_cdm/(Hp) - 3.0*dPhidx;
+  dv_cdmdx      = -v_cdm - ck/Hp*Psi;
+  ddelta_bdx    = ck/Hp*v_b - 3.0*dPhidx;
+  dv_bdx        = -v_b - ck/Hp*Psi + dtaudx*R*(3*Theta[1] + v_b);
+  dThetadx[0]   = -ck/Hp*Theta[1] - dPhidx;
+  dThetadx[1]   = ck/(3.0*Hp)*Theta[0] - 2.0*ck/(3.0*Hp)*Theta[2] + ck/(3.0*Hp)*Psi + dtaudx*(Theta[1] + 1.0/3.0*v_b);
+  for(int l=2; l<Constants.n_ell_theta-1; l++){
+    double kd = (l == 2) ? 1 : 0;  // kronecker delta for l==2.
+    dThetadx[l] = l*ck/((2*l + 1)*Hp)*Theta[l-1] - (l + 1)*ck/((2*l + 1)*Hp)*Theta[l+1] + dtaudx*(Theta[l] - 0.1*Theta[2]*kd);
+  }
+  int l = Constants.n_ell_theta-1;
+  dThetadx[l] = ck/Hp*Theta[l-1] - Constants.c*(l+1.0)/(Hp*cosmo->eta_of_x(x))*Theta[l] + dtaudx*Theta[l];
+
+  
+  */
   
 
 
