@@ -55,10 +55,10 @@ plot_Psi(x, data_list)
 
 def plot_vb_v_cdm(x, data_list):
     for data in data_list:
-        vb = data[:,5]
-        vb_cdm = data[:,6]
-        plt.plot(x, vb,"--")
-        plt.plot(x,vb_cdm)
+        vb = abs(data[:,5])
+        vb_cdm = abs(data[:,6])
+        plt.semilogy(x, vb,"--")
+        plt.semilogy(x,vb_cdm)
         plt.title("v")
     plt.legend(["k=0.1", "k=0.01", "k=0.001"])
     plt.show()
@@ -67,10 +67,10 @@ plot_vb_v_cdm(x, data_list)
 
 def plot_deltas(x, data_list):
     for data in data_list:
-        deltab = data[:,7]
-        delta_cdm = data[:,8]
-        plt.plot(x, deltab,"--")
-        plt.plot(x,delta_cdm)
+        deltab = abs(data[:,7])
+        delta_cdm = abs(data[:,8])
+        plt.semilogy(x, deltab,"--")
+        plt.semilogy(x,delta_cdm)
         plt.title("delta")
     plt.legend(["k=0.1", "k=0.01", "k=0.001"])
     plt.show()

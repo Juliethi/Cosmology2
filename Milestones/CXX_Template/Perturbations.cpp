@@ -39,17 +39,18 @@ void Perturbations::integrate_perturbations(){
   //===================================================================
 
   //Using the quadratic spacing found in Callin
-  Vector k_array(n_k);
-
+  //Vector k_array(n_k);
+  /*
   for(int i = 0; i < n_k; i++){
     double c = i/100.;
     k_array[i] = k_min + (k_max - k_min)*c*c;
   }
+  */
 
-  /*
+  
   Vector log_k_array = Utils::linspace(log(k_min), log(k_max), n_k);
   Vector k_array = exp(log_k_array);
-  */
+  
   
   Vector x_array = Utils::linspace(x_start,x_end,n_x);
 
@@ -282,11 +283,12 @@ void Perturbations::integrate_perturbations(){
   Theta_1_spline.create(x_array, k_array, all_solutions_flattened[Constants.ind_start_theta_tc+1], "Theta_1_spline"); //6
   
 
-  for(int ix =0; ix<n_x; ix++){
-    double k = k_array[0];
+  for(int ix =0; ix<20; ix++){
+    //double k = k_array[0];
+    double k = 0.1/Constants.Mpc;
     double x = x_array[ix];
-    //std::cout << "delta_cdm_vector" << all_solutions[Constants.ind_deltacdm][ix][0] << std::endl;
-    //std::cout << "delta_cdm_spline" << std::endl;
+    //std::cout << "v_cdm_vector= " << all_solutions[Constants.ind_vcdm][ix][0] << std::endl;
+    std::cout << "v_cdm_spline= " << v_cdm_spline(x,k) <<std::endl;
 
   }  
   
@@ -341,9 +343,11 @@ Vector Perturbations::set_ic(const double x, const double k) const{
 
   delta_cdm = -3.0/2.0*Psi_ic;
   delta_b = delta_cdm;
-  v_cdm = -ck/(2.*Hp)*Psi_ic;
+  v_cdm = -ck/(2.0*Hp)*Psi_ic;
+
   v_b = v_cdm;
   
+  std::cout << v_cdm << " " << k*Constants.Mpc << std::endl;
 
   // SET: Photon temperature perturbations (Theta_ell)
   Theta[0] = -0.5*Psi_ic;
