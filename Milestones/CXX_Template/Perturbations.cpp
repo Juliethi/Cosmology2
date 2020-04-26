@@ -179,29 +179,6 @@ void Perturbations::integrate_perturbations(){
         all_solutions[i][j][ik] = solution_i[j-index_x_end_tight-1];
       }
     }
-    
-    
-
-   // The full ODE system
-   /*
-    ODEFunction dydx_full = [&](double x, const double *y, double *dydx){
-      return rhs_full_ode(x, k, y, dydx);
-    };
-
-    ODESolver ode_full;
-    ode_full.solve(dydx_full, x_array_after_tc, y_tc_last_value);
-
-    for(int i = 0; i < Constants.n_ell_tot_full; i++){
-      auto solution_i = ode_full.get_data_by_component(i);
-      printf("\n\n component %d\n", i);
-      for(int m=index_x_end_tight; m<index_x_end_tight+10; m++){
-        printf("%f\n", solution_i[m]);
-      }
-      for(int j = n_x_tc; j < n_x; j++){
-        all_solutions[i][j][ik] = solution_i[j];
-      }
-    }
-    */
 
     //Calculating Psi
     for(int ix = 0; ix<n_x; ix++){
@@ -347,7 +324,7 @@ Vector Perturbations::set_ic(const double x, const double k) const{
 
   v_b = v_cdm;
   
-  std::cout << v_cdm << " " << k*Constants.Mpc << std::endl;
+  //std::cout << v_cdm << " " << k*Constants.Mpc << std::endl;
 
   // SET: Photon temperature perturbations (Theta_ell)
   Theta[0] = -0.5*Psi_ic;
@@ -666,7 +643,7 @@ int Perturbations::rhs_full_ode(double x, double k, const double *y, double *dyd
   double Psi = -Phi - 12.0*H0*H0/(Constants.c*Constants.c*k*k*exp(2*x))*Omega_r*Theta[2];
 
   dThetadx[0] = -ck_over_Hp*Theta[1]- dPhidx;
-  dThetadx[1] = 1./3.*ck_over_Hp*Theta[0] - 2./3.*ck_over_Hp*Theta[2] + 1./3*Psi + dtaudx*(Theta[1] + 1./3*v_b);  
+  dThetadx[1] = 1./3.*ck_over_Hp*Theta[0] - 2./3.*ck_over_Hp*Theta[2] + 1./3.*ck_over_Hp*Psi + dtaudx*(Theta[1] + 1./3*v_b);  
   
   for(int l=2; l<Constants.n_ell_theta-1; l++){
     double kd = (l==2) ? 1 : 0;
@@ -676,44 +653,13 @@ int Perturbations::rhs_full_ode(double x, double k, const double *y, double *dyd
   int l_max = Constants.n_ell_theta-1;
   dThetadx[l_max] = ck_over_Hp*Theta[l_max-1] - Constants.c*(l_max+1.)/(Hp*eta)*Theta[l_max]+dtaudx*Theta[l_max];
   
-  dPhidx = Psi - ck_over_Hp*ck_over_Hp*1/3*Phi + H0*H0/(2.*Hp*Hp)*(Omega_cdm*exp(-x)*delta_cdm + Omega_b*exp(-x)*delta_b + 4.*Omega_r*exp(-2*x)*Theta[0]);
+  dPhidx = Psi - ck_over_Hp*ck_over_Hp*1./3.*Phi + H0*H0/(2.*Hp*Hp)*(Omega_cdm*exp(-x)*delta_cdm + Omega_b*exp(-x)*delta_b + 4.*Omega_r*exp(-2*x)*Theta[0]);
 
   ddelta_cdmdx = ck_over_Hp*v_cdm - 3.*dPhidx;
   ddelta_bdx = ck_over_Hp*v_b - 3.*dPhidx;
   dv_cdmdx = -v_cdm - ck_over_Hp*Psi;
   dv_bdx = -v_b - ck_over_Hp*Psi +dtaudx*R*(3.*Theta[1] + v_b);
-  
 
-  /* 
-  const double ck = Constants.c*k;
-  const double a  = exp(x);
-  const double Hp = cosmo->Hp_of_x(x);
-  const double dHpdx = cosmo->dHpdx_of_x(x);
-  const double H0 = cosmo->get_H0();
-  const double OmegaR   = cosmo->get_OmegaR();  //OMEGA0 OR OMEGA(x)???
-  const double OmegaCDM = cosmo->get_OmegaCDM();
-  const double OmegaB   = cosmo->get_OmegaB();
-  const double dtaudx   = rec->dtaudx_of_x(x);
-  const double ddtauddx = rec->ddtauddx_of_x(x);
-  const double R  = 4*OmegaR/(3*OmegaB*a);
-
-
-  const double Psi    = -Phi - 12.0*H0*H0/(ck*ck*a*a)*OmegaR*Theta[2];
-
-  dPhidx        = Psi - ck*ck/(3.0*Hp*Hp)*Phi + H0*H0/(2.0*Hp*Hp)*(OmegaCDM/a*delta_cdm + OmegaB/a*delta_b + 4.0*OmegaR/(a*a)*Theta[0]);
-  ddelta_cdmdx  = ck*v_cdm/(Hp) - 3.0*dPhidx;
-  dv_cdmdx      = -v_cdm - ck/Hp*Psi;
-  ddelta_bdx    = ck/Hp*v_b - 3.0*dPhidx;
-  dv_bdx        = -v_b - ck/Hp*Psi + dtaudx*R*(3*Theta[1] + v_b);
-  dThetadx[0]   = -ck/Hp*Theta[1] - dPhidx;
-  dThetadx[1]   = ck/(3.0*Hp)*Theta[0] - 2.0*ck/(3.0*Hp)*Theta[2] + ck/(3.0*Hp)*Psi + dtaudx*(Theta[1] + 1.0/3.0*v_b);
-  for(int l=2; l<Constants.n_ell_theta-1; l++){
-    double kd = (l == 2) ? 1 : 0;  // kronecker delta for l==2.
-    dThetadx[l] = l*ck/((2*l + 1)*Hp)*Theta[l-1] - (l + 1)*ck/((2*l + 1)*Hp)*Theta[l+1] + dtaudx*(Theta[l] - 0.1*Theta[2]*kd);
-  }
-  int l = Constants.n_ell_theta-1;
-  dThetadx[l] = ck/Hp*Theta[l-1] - Constants.c*(l+1.0)/(Hp*cosmo->eta_of_x(x))*Theta[l] + dtaudx*Theta[l];
-  */
 
   return GSL_SUCCESS;
 }
