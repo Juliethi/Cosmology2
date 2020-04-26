@@ -159,9 +159,9 @@ void BackgroundCosmology::info() const{
 // Output some data to file
 //====================================================
 void BackgroundCosmology::output(const std::string filename) const{
-  const double x_min = -16.0;
-  const double x_max =  2.0;
-  const int    n_pts =  1000;
+  const double x_min = Constants.x_start;
+  const double x_max = Constants.x_end;
+  const int    n_pts =  5000;
   
   Vector x_array = Utils::linspace(x_min, x_max, n_pts);
 

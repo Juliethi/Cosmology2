@@ -56,15 +56,10 @@ void Perturbations::integrate_perturbations(){
 
   Vector2D kx_array(n_x, Vector(n_k));
   Vector3D all_solutions(Constants.n_ell_tot_full, kx_array);
-  
-  Vector2D delta_cdm_vector(n_x, Vector(n_k));
-  Vector2D delta_b_vector(n_x, Vector(n_k));
-  Vector2D v_cdm_vector(n_x, Vector(n_k));
-  Vector2D v_b_vector(n_x, Vector(n_k));
-  Vector2D phi_vector(n_x, Vector(n_k));
+
   Vector2D Psi_vector(n_x, Vector(n_k));
 
-  Vector3D Theta_l_vector(Constants.n_ell_theta, kx_array);
+
 
 
   //pluss1 because we also want to include Psi
@@ -258,6 +253,7 @@ void Perturbations::integrate_perturbations(){
 
   Theta_0_spline.create(x_array, k_array, all_solutions_flattened[Constants.ind_start_theta_tc], "Theta_0_spline"); //5
   Theta_1_spline.create(x_array, k_array, all_solutions_flattened[Constants.ind_start_theta_tc+1], "Theta_1_spline"); //6
+  Theta_2_spline.create(x_array, k_array, all_solutions_flattened[Constants.ind_start_theta_tc+2], "Theta_2_spline"); //6
   
 
   for(int ix =0; ix<20; ix++){
@@ -783,7 +779,7 @@ void Perturbations::output(const double k, const std::string filename) const{
     fp << x                  << " ";
     fp << get_Theta(x,k,0)   << " ";
     fp << get_Theta(x,k,1)   << " ";
-    //fp << get_Theta(x,k,2)   << " ";
+    fp << get_Theta(x,k,2)   << " ";
     fp << get_Phi(x,k)       << " ";
     fp << get_Psi(x,k)       << " ";
     fp << get_v_b(x,k)       << " ";
