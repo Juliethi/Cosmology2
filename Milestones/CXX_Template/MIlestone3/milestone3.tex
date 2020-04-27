@@ -131,12 +131,24 @@ Now we have all we need to solve the equations!
 
 \section{Method and implementation}
 \subsection{Code structure and parameters}
-All main coding was done in the \texttt{Perturbations.cpp} file. All visualisation was done in \texttt{Milestone3\_plots.py}. The differntial equations were solved using the ODESolver found in the GSL library.
+All main coding was done in the \texttt{Perturbations.cpp} file. The differntial equations were solved using the ODESolver found in the GSL library.All visualisation was done in \texttt{Milestone3\_plots.py}. 
 
-All solutions where found in the interval $x\in[-12,0]$. We solved the equations for 100 $k$-values logarithmically spacedbefore recombination starts, or  in the interval $k\in[0.00005/\mathrm{Mpc}, 0.3/\mathrm{Mpc}]$. When plotting, we chose three $k-values$ of different scales, namely $k=[0.1,0.01,0.001]/mathrm[Mpc]$.
+All solutions where found in the interval $x\in[-12,0]$. We solved the equations for 100 $k$-values logarithmically spacedbefore recombination starts, or  in the interval $k\in[0.00005/\mathrm{Mpc}, 0.3/\mathrm{Mpc}]$. When plotting, we chose three $k$-values of different scales, namely $k=[0.1,0.01,0.001]/\mathrm{Mpc}$. All cosmological parameters were the same as in milestone 1 and 2. 
+
+The code is structured around having one Vector3D object all\_solutions[yi][x][k] that holds all solutions to all of the equations. This was done to make it easier to iterate over all the different equations, because repeating operations on 7+ different vectors just seemed a bit tedious.
 
 \subsection{Tight coupling regime}
-Solving the equations in the tight coupling regime were only a matter of setting up the initial conditions and the right hand side of all the equations properly. With all equations in order 
+Solving the equations in the tight coupling regime were only a matter of setting up the initial conditions and the right hand side of all the equations properly. We also had to find at what time  $|\tau'|<10$ and when $X_e=0.99$, which we used to define when recombination starts. To find the third condition, namely when $|\tau'|<ck/\mathcal{H}$, we looped over all x-values in a range of $\pm 2$ around the $x$-es found from the first two conditions. Lastly, we found the minimum of all three $x$s and defined that as the time when the tight coupling regime ends. 
+
+\textit{You know.. in hindsight, this could've been more elegantly dealt with by just doing everything in one loop without the splines and the binary search for value function but I was stuborn and at this point the code works and I dont want to touch it again for fear of cursing it even more than it already is. :)}
+
+\subsection{Full solution}
+Again, we're basically just solving differential equations, so solving the full solution after tight coupling was again just a matter of correctly implementing the equations and initial conditions. The initial conditions for this end of the time evolution were simply the last calculated value in the tight coupling regime plus the given initial conditions in \cref{eq initial conditions} for the higher multipoles in the photon temperature. 
+
+When all solutions where obtained and all bugs where sorted out \textit{which honestly were an impressive amount of bugs, I am not joking when I say this code is cursed. An entomologist would've had a field day in here.} the results were promptly splined and stored in txt-files for visualization.
+
+\subsubsection{Plotting}
+There's a lot of exciting physics going on here. To really understand what's going on, we marked the different domination eras from the background cosmology on the plots. We also marked the time of last scattering, when the visibility function peaks/$\tau=1$. Probably the most important qunatity though is when the quantities enter the horizons for each $k$'s, which I hopefully know how to calculate tomorrow good night
 
 \section{Results}
 
