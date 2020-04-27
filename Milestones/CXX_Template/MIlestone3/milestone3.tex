@@ -59,7 +59,7 @@ When working with a universe that is no longer void of structures, we need the m
 
 Here, the functions $\Psi$ and $\Phi$ represents the scalar perturbations in the gravitational field due to fluctuations in temperature and density. $\Psi$ corresponds to the Newtonien potential, while $\Phi$ corresponds to the perturbations in the spatial curvature. These perturbations are caused by and evolves with the perturbations of the different quantities in the universe. 
 
-The time evolution of the fluctuations in photon temperature and the densities are derived by solving the Boltzman equation in Fourier space. The beauty of doing this in Fourier space is we can solve all equations individually for different wavenumbers $k$, where $k\propto\lambda^{-1}$ represents different scales. 
+The time evolution of the fluctuations in photon temperature and the densities are derived by solving the Boltzman equation in Fourier space. The beauty of doing this in Fourier space is we can solve all equations individually for different wavenumbers $k$, where $k\propto\lambda^{-1}$ represents different perturbation sizes. 
 
 
 In doing so, one ends up with the following set of equations for the photon temperature multipoles.
@@ -129,11 +129,14 @@ The tight coupling regime approximation is valid until the beginning of recombin
 
 Now we have all we need to solve the equations!
 
+\subsection{Horizons}
+Write something about horizons here? Meszaros effect, suppression of growth, difference when a perturbation enters the horizon before and after rad-matter equailty?
+
 \section{Method and implementation}
 \subsection{Code structure and parameters}
 All main coding was done in the \texttt{Perturbations.cpp} file. The differntial equations were solved using the ODESolver found in the GSL library.All visualisation was done in \texttt{Milestone3\_plots.py}. 
 
-All solutions where found in the interval $x\in[-12,0]$. We solved the equations for 100 $k$-values logarithmically spacedbefore recombination starts, or  in the interval $k\in[0.00005/\mathrm{Mpc}, 0.3/\mathrm{Mpc}]$. When plotting, we chose three $k$-values of different scales, namely $k=[0.1,0.01,0.001]/\mathrm{Mpc}$. All cosmological parameters were the same as in milestone 1 and 2. 
+All solutions where found in the interval $x\in[-12,0]$. We solved the equations for 100 $k$-values logarithmically spacedbefore recombination starts, or  in the interval $k\in[0.00005/\mathrm{Mpc}, 0.3/\mathrm{Mpc}]$. When plotting, we chose five $k$-values of different scales, namely $k=[0.3, 0.1,0.01,0.001,0.00005]/\mathrm{Mpc}$. All cosmological parameters were the same as in milestone 1 and 2. 
 
 The code is structured around having one Vector3D object all\_solutions[yi][x][k] that holds all solutions to all of the equations. This was done to make it easier to iterate over all the different equations, because repeating operations on 7+ different vectors just seemed a bit tedious.
 
@@ -148,9 +151,39 @@ Again, we're basically just solving differential equations, so solving the full 
 When all solutions where obtained and all bugs where sorted out \textit{which honestly were an impressive amount of bugs, I am not joking when I say this code is cursed. An entomologist would've had a field day in here.} the results were promptly splined and stored in txt-files for visualization.
 
 \subsubsection{Plotting}
-There's a lot of exciting physics going on here. To really understand what's going on, we marked the different domination eras from the background cosmology on the plots. We also marked the time of last scattering, when the visibility function peaks/$\tau=1$. Probably the most important qunatity though is when the quantities enter the horizons for each $k$'s, which I hopefully know how to calculate tomorrow good night
+There's a lot of exciting physics going on here. To really understand what's going on, we marked the different domination eras from the background cosmology on the plots. We also marked the time of last scattering, when the visibility function peaks and when $\tau=1$. The last quantity we marked is when each perturbation enters the horizon for each wavenumber $k$. From milestone 1 we know that the conformal time $\eta$ really is more of a conformal length, and that it represents the size of the horizon at any time $x$. Thus, to find out the time when a perturbation of scale $k$ enters the horizon, we found the time when $k=1/\eta(x)$. In short, like proper astrophysicists, we wanted to include as much information possible per figure! 
 
 \section{Results}
+
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.49\textwidth]{theta0_plot.pdf} 
+    \includegraphics[width=0.49\textwidth]{theta1_plot.pdf} 
+    \includegraphics[width=0.49\textwidth]{theta2_plot.pdf}
+    \caption{Plots showing how the monopole, dipole and quadrupole of the photon temperature perturbations evolve in time. The background colors in each plot represents the different eras of the universe, with yellow being the radiation dominated era, blue being the matter dominated era and red being the dark energy dominated era. The point of horizon entry for each $k$ is represented by the dashed lines. The black dashed line marks the point where the visibility function $\tilde{g}$ peaks.}
+    \label{fig:theta}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.49\textwidth]{delta_plot.pdf} 
+    \includegraphics[width=0.49\textwidth]{v_plot.pdf} 
+    \caption{Plots showing the absolute value of the density perturbations and velocities for dark matter and baryons. For both these quantities, the baryon perturbations are plotted with a dashed line. As with \cref{fig:theta} the background colors represent the different eras and the vertical dashed lines represent the time each perturbation of size $k$ enters the horizon.}
+    \label{fig:delta_v}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.49\textwidth]{Psi_plot.pdf} 
+    \includegraphics[width=0.49\textwidth]{Phi_plot.pdf} 
+    \caption{hello}
+    \label{fig:phi_psi}
+    \caption{Plots showing how the scalar metric perturbations evolve as a function of time. As with \cref{fig:theta} the background colors represent the different eras and the vertical dashed lines represent the time each perturbation of size $k$ enters the horizon.}
+\end{figure}
+
+
 
 \bibliography{bibtex}{}
 \bibliographystyle{plain}

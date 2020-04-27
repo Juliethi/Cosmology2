@@ -71,6 +71,12 @@ int main(int argc, char **argv){
 
   double kvalue3 = 0.001/Constants.Mpc;
   pert.output(kvalue3, "perturbations_k0.001.txt");
+
+  double kvalue4 = Constants.k_min; //0.0005/Mpc
+  pert.output(kvalue4, "perturbations_k0.0005.txt");
+
+  double kvalue5 = Constants.k_max; //0.3/Mpc
+  pert.output(kvalue5, "perturbations_k0.3.txt");
   
   // Remove when module is completed
   return 0;
