@@ -38,6 +38,108 @@
 
 In this projet we wish to follow in the footsteps of Petter Callin\cite{callin2006calculate} who numerically reproduces the power spectrum obtained by the CMB data. This will be done in several steps, where each step simulates the different physical processes that make up the power spectrum.
 
+The previous milestones have consisted of calculating the background cosmology and the recombination history of the universe. This milestone will focus on calculating how the different perturbations that are responsible for all the structures we see today have evolved over time. 
+
+This will be done by solving a coupled set of differential equations, where each equation corresponds to a perturbation in photon temperature, cold dark matter density, baryon density and the metric function/gravitational field. 
+
+As with the first part of this project, all numerical solutions will be obtained by utilising the C++ code base provided by our lecturer, Hans Winther.
+
+
+\section{Theoretical Background}
+\subsection{The perturbed quantities}
+In milestone 1 we solved the background cosmology, meaning we solved the time evolution of a homogenious and isotropic universe with no structures. All the structures we observe today can be sourced back to small fluctuations in temperature and density in the earliest times of the universe. 
+
+When working with a universe that is no longer void of structures, we need the metric to represent that. When working with perturbations, one can choose to work in different coordinate systems, or gauges. For this project, we will work in the Newtonian gauge, corresponding to a metric on the form
+
+\begin{align}\label{eq:perturbed metric}
+    g_{00} &= -1-2\Psi \nonumber \\
+    g_{0i} &= 0 \\
+    g_{ij} &= a^2\delta_{ij} (1+2\Phi) \nonumber.
+\end{align}
+
+Here, the functions $\Psi$ and $\Phi$ represents the scalar perturbations in the gravitational field due to fluctuations in temperature and density. $\Psi$ corresponds to the Newtonien potential, while $\Phi$ corresponds to the perturbations in the spatial curvature. These perturbations are caused by and evolves with the perturbations of the different quantities in the universe. 
+
+The time evolution of the fluctuations in photon temperature and the densities are derived by solving the Boltzman equation in Fourier space. The beauty of doing this in Fourier space is we can solve all equations individually for different wavenumbers $k$, where $k\propto\lambda^{-1}$ represents different scales. 
+
+
+In doing so, one ends up with the following set of equations for the photon temperature multipoles.
+
+
+\begin{equation}\begin{aligned}\label{eq: photon multipoles dx}
+    &\Theta_{0}^{\prime}=-\frac{c k}{\mathcal{H}} \Theta_{1}-\Phi^{\prime}\\
+    &\begin{aligned}
+    \Theta_{1}^{\prime} &=\frac{c k}{3 \mathcal{H}} \Theta_{0}-\frac{2 c k}{3 \mathcal{H}} \Theta_{2}+\frac{c k}{3 \mathcal{H}} \Psi+\tau^{\prime}\left[\Theta_{1}+\frac{1}{3} v_{b}\right] \\
+    \Theta_{\ell}^{\prime} &=\frac{\ell c k}{(2 \ell+1) \mathcal{H}} \Theta_{\ell-1}-\frac{(\ell+1) c k}{(2 \ell+1) \mathcal{H}} \Theta_{\ell+1}+\tau^{\prime}\left[\Theta_{\ell}-\frac{1}{10} \Pi \delta_{\ell, 2}\right], \quad 2 \leq \ell<\ell_{\max } \\
+    \Theta_{\ell}^{\prime} &=\frac{c k}{\mathcal{H}} \Theta_{\ell-1}-c \frac{\ell+1}{\mathcal{H} \eta(x)} \Theta_{\ell}+\tau^{\prime} \Theta_{\ell}, \quad \ell=\ell_{\max }
+    \end{aligned}
+    \end{aligned}\end{equation}
+
+Photon temperature is the only quantity where we will be interested in more than the monopoles $(\ell = 0)$ and dipoles $(\ell = 1)$. The $\ell$'s come from the Legendre polynomial used when defining $\Theta_{\ell}$, meaning that larger $\ell$ corresponds to the small scale structures of the temperature field, as the Legendre polynomial has an increasing amount of oscillations for larger $\ell$'s. The monopole can be understood as the mean temperature at the position of an electron, the dipole is the velocity of the fluid due to Doppler effect and the quadrupole is the only relevant source for polarization signals. 
+
+
+For the matter perturbations, the equivalence to the monopole and dipole perturbations is the fractional overdensity $\delta(x,k)$ and velocity $v(x,k)$ respectively. When solving the Boltzman equations for dark matter and baryons, one end up with the following set of equations
+
+\begin{equation}\begin{aligned}\label{eq: matter perturbation dx}
+    \delta_{\mathrm{CDM}}^{\prime} &=\frac{c k}{\mathcal{H}} v_{\mathrm{CDM}}-3 \Phi^{\prime} \\
+    v_{\mathrm{CDM}}^{\prime} &=-v_{\mathrm{CDM}}-\frac{c k}{\mathcal{H}} \Psi \\
+    \delta_{b}^{\prime} &=\frac{c k}{\mathcal{H}} v_{b}-3 \Phi^{\prime} \\
+    v_{b}^{\prime} &=-v_{b}-\frac{c k}{\mathcal{H}} \Psi+\tau^{\prime} R\left(3 \Theta_{1}+v_{b}\right)
+\end{aligned}\end{equation}
+
+where $R=\frac{4 \Omega_{r 0}}{3 \Omega_{b 0} a}$. 
+
+Finally, the equations describing the evolution of the perturbed metric functions $\Psi$ and $\Phi$ are given by 
+
+\begin{equation}\begin{aligned}\label{eq phi psi}
+    \Phi^{\prime} &=\Psi-\frac{c^{2} k^{2}}{3 \mathcal{H}^{2}} \Phi+\frac{H_{0}^{2}}{2 \mathcal{H}^{2}}\left[\Omega_{\mathrm{CDM} 0} a^{-1} \delta_{\mathrm{CDM}}+\Omega_{b 0} a^{-1} \delta_{b}+4 \Omega_{r 0} a^{-2} \Theta_{0}+4  a^{-2}\right] \\
+    \Psi &=-\Phi-\frac{12 H_{0}^{2}}{c^{2} k^{2} a^{2}}\left[\Omega_{r 0} \Theta_{2}\right]
+\end{aligned}\end{equation}
+
+Note that to do this more accurately one should also include neutrino perturbations and the photon polarization. As this project is done by a mere master student, these quantities are promplty ignored!
+
+To solve differential equation, we need some initial conditions. The initial conditions are derived from looking at very early times in the universes history, so early that $k\eta \ll 1$ for all $k$, which means that on all scales, the horizon is smaller than the wavelength of the perturbations. This yields the initial conditions
+
+\begin{equation}\begin{aligned}\label{eq initial conditions}
+    \Psi &=-\frac{1}{\frac{3}{2}+\frac{2 f_{v}}{5}} \\
+    \Phi &=-\left(1+\frac{2 f_{\nu}}{5}\right) \Psi \\
+    \delta_{\mathrm{CDM}} &=\delta_{b}=-\frac{3}{2} \Psi \\
+    v_{\mathrm{CDM}} &=v_{b}=-\frac{c k}{2 \mathcal{H}} \Psi \\
+    \Theta_{0} &=-\frac{1}{2} \Psi \\
+    \Theta_{1} &=+\frac{c k}{6 \mathcal{H}} \Psi \\
+    \Theta_{2} &= -\frac{20 c k}{45 \mathcal{H} \tau^{\prime}} \Theta_{1}\\
+    \Theta_{\ell}&=-\frac{\ell}{2 \ell+1} \frac{c k}{\mathcal{H} \tau^{\prime}} \Theta_{\ell-1},
+    \end{aligned}\end{equation}
+
+where $f_v=0$ when not considering neutrinos. It is important to note that the value of $\Psi$ can be chosen freely when solving the equations. Here it is normalized for convenienve with regards to the next milestone.
+
+\subsection{Tight coupling}
+There is one regime to pay special attention to before one can solve the differential equations, namely the tight coupling regime. The tight coupling regime is the time period before recombination, where the mean free path of photons was extremely small due to Compton scattering. In this regime, the photons and baryons are tightly coupled. Here, the only relevant multipoles are the monopole, dipole and quadrupole.
+
+Another thing to note in this regime is that the optical depth $\tau$ is of course, very large. The universe is optically thick. This can lead to numerical instabilites in the equations where $\tau'$ is multiplied by a small quantity. This is a problem in the expression for $v_b'$, where $\tau'$ is multiplied by the factor $(3\Theta_1 + v_b)$, which at early times is a small quantity. 
+
+To remedy this we approximate $(3\Theta_1 + v_b)$. Doing this yields a new set of equations for $v_b'$ and $\Theta_1$, namely 
+
+\begin{equation}\begin{aligned}\label{eq: tight coupling regime dx}
+    q &=\frac{-\left[(1-R) \tau^{\prime}+(1+R) \tau^{\prime \prime}\right]\left(3 \Theta_{1}+v_{b}\right)-\frac{c k}{\mathcal{H}} \Psi+\left(1-\frac{\mathcal{H}^{\prime}}{\mathcal{H}}\right) \frac{c k}{\mathcal{H}}\left(-\Theta_{0}+2 \Theta_{2}\right)-\frac{c k}{\mathcal{H}} \Theta_{0}^{\prime}}{(1+R) \tau^{\prime}+\frac{\mathcal{H}^{\prime}}{\mathcal{H}}-1} \\
+    v_{b}^{\prime} &=\frac{1}{1+R}\left[-v_{b}-\frac{c k}{\mathcal{H}} \Psi+R\left(q+\frac{c k}{\mathcal{H}}\left(-\Theta_{0}+2 \Theta_{2}\right)-\frac{c k}{\mathcal{H}} \Psi\right)\right] \\
+    \Theta_{1}^{\prime} &=\frac{1}{3}\left(q-v_{b}^{\prime}\right).
+\end{aligned}\end{equation}
+
+The tight coupling regime approximation is valid until the beginning of recombination, or until $\left|\frac{d \tau}{d x}\right|<10 \cdot \min \left(1, \frac{c k}{\mathcal{H}}\right)$.
+
+Now we have all we need to solve the equations!
+
+\section{Method and implementation}
+\subsection{Code structure and parameters}
+All main coding was done in the \texttt{Perturbations.cpp} file. All visualisation was done in \texttt{Milestone3\_plots.py}. The differntial equations were solved using the ODESolver found in the GSL library.
+
+All solutions where found in the interval $x\in[-12,0]$. We solved the equations for 100 $k$-values logarithmically spacedbefore recombination starts, or  in the interval $k\in[0.00005/\mathrm{Mpc}, 0.3/\mathrm{Mpc}]$. When plotting, we chose three $k-values$ of different scales, namely $k=[0.1,0.01,0.001]/mathrm[Mpc]$.
+
+\subsection{Tight coupling regime}
+Solving the equations in the tight coupling regime were only a matter of setting up the initial conditions and the right hand side of all the equations properly. With all equations in order 
+
+\section{Results}
+
 \bibliography{bibtex}{}
 \bibliographystyle{plain}
 \end{document}
