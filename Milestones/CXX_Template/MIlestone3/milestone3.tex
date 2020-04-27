@@ -113,7 +113,7 @@ To solve differential equation, we need some initial conditions. The initial con
 where $f_v=0$ when not considering neutrinos. It is important to note that the value of $\Psi$ can be chosen freely when solving the equations. Here it is normalized for convenienve with regards to the next milestone.
 
 \subsection{Tight coupling}
-There is one regime to pay special attention to before one can solve the differential equations, namely the tight coupling regime. The tight coupling regime is the time period before recombination, where the mean free path of photons was extremely small due to Compton scattering. In this regime, the photons and baryons are tightly coupled. Here, the only relevant multipoles are the monopole, dipole and quadrupole.
+There is one regime to pay special attention to before one can solve the differential equations, namely the tight coupling regime. The tight coupling regime is the time period before recombination, where the mean free path of photons was extremely small due to Compton scattering. In this regime, the photons and baryons are tightly coupled behaving very akin to a fluid. Here, the only relevant multipoles are the monopole and the dipole, while all larger multipoles are supressed. 
 
 Another thing to note in this regime is that the optical depth $\tau$ is of course, very large. The universe is optically thick. This can lead to numerical instabilites in the equations where $\tau'$ is multiplied by a small quantity. This is a problem in the expression for $v_b'$, where $\tau'$ is multiplied by the factor $(3\Theta_1 + v_b)$, which at early times is a small quantity. 
 
@@ -130,7 +130,28 @@ The tight coupling regime approximation is valid until the beginning of recombin
 Now we have all we need to solve the equations!
 
 \subsection{Horizons}
-Write something about horizons here? Meszaros effect, suppression of growth, difference when a perturbation enters the horizon before and after rad-matter equailty?
+An important aspect to understand when analyzing how different perturbations at different scales evolve in time is the concept of horizons. A horizon defines the limit of which points in space are casually connected. One such horizon is the time variable $\eta(x)$. It is defined as the maximum distance a photon could have traveled since the big bang. Regions separated by greater comoving distances than $\eta$ simply cant communicate information between them, they are not casually linked. 
+
+This is relevant when looking at the evolution of perturbation, because wether a perturbation is smaller or larger than the horizon will impact the way it evolves. In fact, while the horizon is an increasing quantity, the comoving wavelengths of the perturbation remains the same. This means that there exists a time $x_k$ for every $k$ where the perturbation was bigger than the horizon!
+
+While there are many exciting consequences of super horizon perturbations, the focus here will be kept short and sweet and focus on what is needed to undertand the results of the perturbation evolution better. The most important factor is that the existence of super horizon perturbations divides the time evolution into three possible stages:
+
+\begin{itemize}
+    \item Super horizon: The evolution of the perturbations when $k\eta \ll 1$.
+    \item Sub-horizon, radiation dominated: The evolution of the perturbation when it enters the horizon in the radiation dominated era.
+    \item Sub-horizon, matter dominated: The perturbation enter the horizon in the matter dominated era.
+\end{itemize}
+
+Each of these epochs will affect the different types of perturbations differently. In the radiaton dominated era, the potentials are affected mainly by the photon perturbations $\Theta$. Since this era is also well before recombination, the baryons are tightly coupled with the photons and will also be affected by their perturbations. The dark matter, on the other hand, is as we know cold and non-interacting, meaning it is only affected by the gravitational potential, and thus only indirectly by the other perturbations. 
+
+If the perturbation of a certain size $k$ enters the horizon in the radiation dominated era, we should expect the potentials to decrease rapidly. This can be understood by remembering that the evolution of a perturbation is determined by the amount of pressure versus the strength of gravity. If pressure is larger than gravity, the perturbations will not grow, but simply oscillate. Arguably, in the radiation dominated era, there is a lot of pressure, meaning the perturbations in radiation might not grow. With no growing perturbation and a universe that expands, the gravitational potential is expected to decrease. 
+
+Knowing how the potential is affected in the radiation dominated era will help in understanding how the dark matter perturbations grow if they enter the horizon in this era. Simpy put, one shoud expect them to grow, but not as fast as in the matter dominated era because again, the pressure is higher in the radiation dominated era. 
+
+As mentioned, the baryons and photons are tightly coupled in early times before recombination. This means that one should expect that the baryon perturbations that enter the horizon before recombination will follow the photon temperature perturbations in the beginning, before decoupling from the plasma and falling into the gravitational wells created by the dark matter. 
+
+
+
 
 \section{Method and implementation}
 \subsection{Code structure and parameters}
@@ -151,10 +172,9 @@ Again, we're basically just solving differential equations, so solving the full 
 When all solutions where obtained and all bugs where sorted out \textit{which honestly were an impressive amount of bugs, I am not joking when I say this code is cursed. An entomologist would've had a field day in here.} the results were promptly splined and stored in txt-files for visualization.
 
 \subsubsection{Plotting}
-There's a lot of exciting physics going on here. To really understand what's going on, we marked the different domination eras from the background cosmology on the plots. We also marked the time of last scattering, when the visibility function peaks and when $\tau=1$. The last quantity we marked is when each perturbation enters the horizon for each wavenumber $k$. From milestone 1 we know that the conformal time $\eta$ really is more of a conformal length, and that it represents the size of the horizon at any time $x$. Thus, to find out the time when a perturbation of scale $k$ enters the horizon, we found the time when $k=1/\eta(x)$. In short, like proper astrophysicists, we wanted to include as much information possible per figure! 
+There's a lot of exciting physics going on here. To really understand what's going on, we marked the different domination eras from the background cosmology on the plots. We also marked the time of last scattering, when the visibility function peaks and when $\tau=1$. The last quantity we marked is when each perturbation enters the horizon for each wavenumber $k$. In short, like proper astrophysicists, we wanted to include as much information possible per figure! 
 
 \section{Results}
-
 
 
 \begin{figure}[h]
@@ -162,7 +182,7 @@ There's a lot of exciting physics going on here. To really understand what's goi
     \includegraphics[width=0.49\textwidth]{theta0_plot.pdf} 
     \includegraphics[width=0.49\textwidth]{theta1_plot.pdf} 
     \includegraphics[width=0.49\textwidth]{theta2_plot.pdf}
-    \caption{Plots showing how the monopole, dipole and quadrupole of the photon temperature perturbations evolve in time. The background colors in each plot represents the different eras of the universe, with yellow being the radiation dominated era, blue being the matter dominated era and red being the dark energy dominated era. The point of horizon entry for each $k$ is represented by the dashed lines. The black dashed line marks the point where the visibility function $\tilde{g}$ peaks.}
+    \caption{Plots showing how the monopole, dipole and quadrupole of the photon temperature perturbations evolve in time. The background colors in each plot represents the different eras of the universe, with yellow being the radiation dominated era, blue being the matter dominated era and red being the dark energy dominated era. The point of horizon entry for each $k$ is represented by the dashed lines. The black dashed line marks the point where the visibility function $\tilde{g}$ peaks. }
     \label{fig:theta}
 \end{figure}
 
