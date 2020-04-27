@@ -134,7 +134,9 @@ An important aspect to understand when analyzing how different perturbations at 
 
 This is relevant when looking at the evolution of perturbation, because wether a perturbation is smaller or larger than the horizon will impact the way it evolves. In fact, while the horizon is an increasing quantity, the comoving wavelengths of the perturbation remains the same. This means that there exists a time $x_k$ for every $k$ where the perturbation was bigger than the horizon!
 
-While there are many exciting consequences of super horizon perturbations, the focus here will be kept short and sweet and focus on what is needed to undertand the results of the perturbation evolution better. The most important factor is that the existence of super horizon perturbations divides the time evolution into three possible stages:
+While there are many exciting consequences of super horizon perturbations, the focus here will be kept short and sweet and focus on what is needed to undertand the results of the perturbation evolution better. It will also be a qualitative explanation. 
+
+The most important factor is that the existence of super horizon perturbations divides the time evolution into three possible stages:
 
 \begin{itemize}
     \item Super horizon: The evolution of the perturbations when $k\eta \ll 1$.
@@ -146,10 +148,9 @@ Each of these epochs will affect the different types of perturbations differentl
 
 If the perturbation of a certain size $k$ enters the horizon in the radiation dominated era, we should expect the potentials to decrease rapidly. This can be understood by remembering that the evolution of a perturbation is determined by the amount of pressure versus the strength of gravity. If pressure is larger than gravity, the perturbations will not grow, but simply oscillate. Arguably, in the radiation dominated era, there is a lot of pressure, meaning the perturbations in radiation might not grow. With no growing perturbation and a universe that expands, the gravitational potential is expected to decrease. 
 
-Knowing how the potential is affected in the radiation dominated era will help in understanding how the dark matter perturbations grow if they enter the horizon in this era. Simpy put, one shoud expect them to grow, but not as fast as in the matter dominated era because again, the pressure is higher in the radiation dominated era. 
+Knowing how the potential is affected in the radiation dominated era will help in understanding how the dark matter perturbations grow if they enter the horizon in this era. Simpy put, one shoud expect them to grow, but not as fast as in the matter dominated era because again, the pressure is higher in the radiation dominated era. This supression of growth is called the Mezsaros effect, where a perturbation $\delta_{dm}\propto log(a)$ in the radiation dominated era, and $\delta_{dm} \propto a$ in the matter dominated era.
 
 As mentioned, the baryons and photons are tightly coupled in early times before recombination. This means that one should expect that the baryon perturbations that enter the horizon before recombination will follow the photon temperature perturbations in the beginning, before decoupling from the plasma and falling into the gravitational wells created by the dark matter. 
-
 
 
 
@@ -157,7 +158,7 @@ As mentioned, the baryons and photons are tightly coupled in early times before 
 \subsection{Code structure and parameters}
 All main coding was done in the \texttt{Perturbations.cpp} file. The differntial equations were solved using the ODESolver found in the GSL library.All visualisation was done in \texttt{Milestone3\_plots.py}. 
 
-All solutions where found in the interval $x\in[-12,0]$. We solved the equations for 100 $k$-values logarithmically spacedbefore recombination starts, or  in the interval $k\in[0.00005/\mathrm{Mpc}, 0.3/\mathrm{Mpc}]$. When plotting, we chose five $k$-values of different scales, namely $k=[0.3, 0.1,0.01,0.001,0.00005]/\mathrm{Mpc}$. All cosmological parameters were the same as in milestone 1 and 2. 
+All solutions where found in the interval $x\in[-12,0]$. Ideally, this intervall should have been bigger, but due to limitations from milestone 2, the optical depth was only solved for $x>-12$. We solved the equations for 100 $k$-values logarithmically spacedbefore recombination starts, or  in the interval $k\in[0.00005/\mathrm{Mpc}, 0.3/\mathrm{Mpc}]$. When plotting, we chose five $k$-values of different scales, namely $k=[0.3, 0.1,0.01,0.001,0.00005]/\mathrm{Mpc}$. Further on in the text, the syntax $k=a$ is understood to mean $k=a/\mathrm{Mpc}$. All cosmological parameters were the same as in milestone 1 and 2. 
 
 The code is structured around having one Vector3D object all\_solutions[yi][x][k] that holds all solutions to all of the equations. This was done to make it easier to iterate over all the different equations, because repeating operations on 7+ different vectors just seemed a bit tedious.
 
@@ -169,13 +170,13 @@ Solving the equations in the tight coupling regime were only a matter of setting
 \subsection{Full solution}
 Again, we're basically just solving differential equations, so solving the full solution after tight coupling was again just a matter of correctly implementing the equations and initial conditions. The initial conditions for this end of the time evolution were simply the last calculated value in the tight coupling regime plus the given initial conditions in \cref{eq initial conditions} for the higher multipoles in the photon temperature. 
 
-When all solutions where obtained and all bugs where sorted out \textit{which honestly were an impressive amount of bugs, I am not joking when I say this code is cursed. An entomologist would've had a field day in here.} the results were promptly splined and stored in txt-files for visualization.
+When all solutions where obtained and all bugs where sorted out \textit{which honestly were an impressive amount of bugs, I am not joking when I say I cursed this code. An entomologist would've had a field day in here.} the results were promptly splined and stored in txt-files for visualization.
 
 \subsubsection{Plotting}
 There's a lot of exciting physics going on here. To really understand what's going on, we marked the different domination eras from the background cosmology on the plots. We also marked the time of last scattering, when the visibility function peaks and when $\tau=1$. The last quantity we marked is when each perturbation enters the horizon for each wavenumber $k$. In short, like proper astrophysicists, we wanted to include as much information possible per figure! 
 
 \section{Results}
-
+In \cref{fig:theta}, we see the first three photon temperature multipoles for five different k-values. The first thing we observe is that, as expected, the quadrupole is supressed before recombination. For the monopole and dipole we see that for the largerst $k$-modes, that is the smallest scales that enter their respective horizons during the radition dominated era are tightly coupled with the baryons, and this tight coupling leads to the oscillations before recombination. These oscillations are due to the interplay of pressure and gravity in the photon-baryon fluid. The fluid will try to collapse under gravity, but in doing so, the temperature, and thus the radiative pressure increases, stopping the collapse. This dance continues until the photons decouple from the photon-baryon soup. This decoupling is leads to the free streaming of photons. The larger $k$-modes that enter the horizon after the radiaton/matter equality are not affectet by the radiation and gravity on the smaller scales, and thus show no such high frequency oscillations. 
 
 \begin{figure}[h]
     \centering
@@ -186,6 +187,10 @@ There's a lot of exciting physics going on here. To really understand what's goi
     \label{fig:theta}
 \end{figure}
 
+Moving on to the dark matter and baryon perturbations shown in \cref{fig:delta_v}, we see the expected coupling with the photon temperatures. For $k=0.3$ and $k=0.1$, which are the $k$-modes that enter the horizon in the radiation dominated era, both the densites $\delta_b$ and velocities $v_b$ show the same oscillation patterns in the same time region as the photon monopoles and dipoles. After decoupling, the perturbations that where first coupled with the photons falls into the gravitational wells created by the dark matter, and thus follow the dark matter perturbation evolution. The larger perturbations that where never a part of the photon-baryon fluid does not show these oscillatory behaviours, but follow the dark matter evolution straigt away. 
+
+Now, as explained we expect the growth of a matter perturbation that enters the horizon in the radiation dominated era to be supressed. At first glance, this does not seem to be the case in our results. It even looks like the perturbations are growing faster in the radiation dominated era! If we go back to the start, we chose a specific coordinate system, or gauge, to calculate or values. As it turns out, the values calculated here are not gauge-invariant. So while the Meszaros effect is a real effect that does happen, it doesn't show up clearly in our choice of gauge. 
+
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.49\textwidth]{delta_plot.pdf} 
@@ -193,6 +198,10 @@ There's a lot of exciting physics going on here. To really understand what's goi
     \caption{Plots showing the absolute value of the density perturbations and velocities for dark matter and baryons. For both these quantities, the baryon perturbations are plotted with a dashed line. As with \cref{fig:theta} the background colors represent the different eras and the vertical dashed lines represent the time each perturbation of size $k$ enters the horizon.}
     \label{fig:delta_v}
 \end{figure}
+
+Lastly, the gravitational potentials. First and foremost, we see that $\Psi = -\Phi$ would have been an acceptable approximation! Focusing now on the potential $\Phi$, it seems to follow the predicted behaviour pretty nicely! For the $k$-modes that enter the horizon in the radiation dominated era, the potential quickly decreases due to the fact that the photon temperature perturbations does not grow, which we can clearly see in \cref{fig:theta} as well. The oscillations found in both $\Theta$ and the baryon perturbations manifest themselves as oscillations in the potential. For the $k$-modes corresponding to larger structures, we do not observe this decrease in the potential, as expected. These structures enter the horizon in the matter dominated era and the perturbation growth is thus not supressed. 
+
+We also observe that at times close to today, when the universe evolves from being matter dominated to being dark matter dominated, the potential for the larger scales $k=0.0005$ to $k=0.01$ the potential decreases again. We assume this happens for the same reasons as the first decrease, the expantion of the universe increases but not the growth of the perturbations, thus the average amount of stuff per area in the universe is smaller, resulting in a drecreasing potential.
 
 \begin{figure}[h]
     \centering
