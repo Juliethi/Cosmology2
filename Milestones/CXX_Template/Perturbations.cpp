@@ -480,15 +480,16 @@ void Perturbations::compute_source_functions(){
       // in a 1D array for the 2D spline routine source(ix,ik) -> S_array[ix + nx * ik]
       const int index = ix + n_x * ik;
 
-      //=============================================================================
-      // TODO: Compute the source functions
-      //=============================================================================
-      // Fetch all the things we need...
-      // const double Hp       = cosmo->Hp_of_x(x);
-      // const double tau      = rec->tau_of_x(x);
-      // ...
-      // ...
+      const double Hp = cosmo->Hp_of_x(ix);
+      const double dhpdx = cosmo->dHpdx_of_x(ix);
+      const double ddhpdx = cosmo->ddHpddx_of_x(ix);
 
+      const double g = rec->g_tilde_of_x(ix);
+      const double dgdx = rec->dgdx_tilde_of_x(ix);
+      const double ddgdx = rec->ddgddx_tilde_of_x(ix);
+      
+
+      
       // Temperatur source
       ST_array[index] = 0.0;
 
