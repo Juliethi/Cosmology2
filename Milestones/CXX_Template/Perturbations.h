@@ -45,6 +45,9 @@ class Perturbations{
     Spline2D Theta_0_spline{"Theta_0_spline"};
     Spline2D Theta_1_spline{"Theta_1_spline"};
     Spline2D Theta_2_spline{"Theta_2_spline"};
+
+    Spline2D dPsidx_spline{"dPsidx_spline"};
+    Spline2D dPhidx_spline{"dPhidx_spline"};
    
     // Splines of source functions (ST for temperature; SE for polarization)
     Spline2D ST_spline{"ST_spline"};

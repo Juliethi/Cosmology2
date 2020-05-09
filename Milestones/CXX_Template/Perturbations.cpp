@@ -254,6 +254,7 @@ void Perturbations::integrate_perturbations(){
   Theta_0_spline.create(x_array, k_array, all_solutions_flattened[Constants.ind_start_theta_tc], "Theta_0_spline"); //5
   Theta_1_spline.create(x_array, k_array, all_solutions_flattened[Constants.ind_start_theta_tc+1], "Theta_1_spline"); //6
   Theta_2_spline.create(x_array, k_array, all_solutions_flattened[Constants.ind_start_theta_tc+2], "Theta_2_spline"); //6
+
   
 
   for(int ix =0; ix<20; ix++){
@@ -463,8 +464,13 @@ void Perturbations::compute_source_functions(){
   //=============================================================================
   // ...
   // ...
-  Vector k_array;
-  Vector x_array;
+  //Vector k_array;
+  //Vector x_array;
+
+
+  Vector log_k_array = Utils::linspace(log(k_min), log(k_max), n_k);
+  Vector k_array = exp(log_k_array);
+  Vector x_array = Utils::linspace(x_start,x_end,n_x);
 
   // Make storage for the source functions (in 1D array to be able to pass it to the spline)
   Vector ST_array(k_array.size() * x_array.size());
@@ -480,16 +486,32 @@ void Perturbations::compute_source_functions(){
       // in a 1D array for the 2D spline routine source(ix,ik) -> S_array[ix + nx * ik]
       const int index = ix + n_x * ik;
 
-      const double Hp = cosmo->Hp_of_x(ix);
-      const double dhpdx = cosmo->dHpdx_of_x(ix);
-      const double ddhpdx = cosmo->ddHpddx_of_x(ix);
+      const double Hp = cosmo->Hp_of_x(x);
+      const double dhpdx = cosmo->dHpdx_of_x(x);
+      const double ddhpdx = cosmo->ddHpddx_of_x(x);
 
-      const double g = rec->g_tilde_of_x(ix);
-      const double dgdx = rec->dgdx_tilde_of_x(ix);
-      const double ddgdx = rec->ddgddx_tilde_of_x(ix);
-      
+      const double g = rec->g_tilde_of_x(x);
+      const double dgdx = rec->dgdx_tilde_of_x(x);
+      const double ddgdx = rec->ddgddx_tilde_of_x(x);
+      const double dtaudx = rec->dtaudx_of_x(x);
 
-      
+      const double theta0 = get_Theta(x, k, 0);
+      const double theta2 = get_Theta(x, k, 2);
+      const double Psi = get_Psi(x,k);
+      const double Phi = get_Phi(x,k);
+
+      const double dPsidx = Psi_spline.deriv_x(x,k);
+      const double dPhidx = Phi_spline.deriv_x(x,k);
+
+      const double vb = get_v_b(x, k);
+      const double dvbdx = v_b_spline.deriv_x(x,k);
+
+      const double c = Constants.c;
+      double ck = c*k;
+
+      double A = g*(theta0 + Psi + 1./4.*theta2);
+      double B = exp(-dtaudx)*(dPsidx -dPhidx);
+      double C = 
       // Temperatur source
       ST_array[index] = 0.0;
 
