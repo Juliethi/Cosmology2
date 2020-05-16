@@ -21,8 +21,12 @@ void PowerSpectrum::solve(){
   //=========================================================================
   // TODO: Choose the range of k's and the resolution to compute Theta_ell(k)
   //=========================================================================
+  /*
   Vector k_array;
   Vector log_k_array = log(k_array);
+  */
+  Vector log_k_array = Utils::linspace(log(k_min), log(k_max), n_k);
+  Vector k_array = exp(log_k_array);
 
   //=========================================================================
   // TODO: Make splines for j_ell. 
@@ -61,7 +65,8 @@ void PowerSpectrum::generate_bessel_function_splines(){
   
   // Make storage for the splines
   j_ell_splines = std::vector<Spline>(ells.size());
-    
+  int npts = 1e4;
+  Vector x_array = Utils::linspace(0, npts, npts+1); 
   //=============================================================================
   // TODO: Compute splines for bessel functions j_ell(z)
   // Choose a suitable range for each ell
@@ -71,11 +76,16 @@ void PowerSpectrum::generate_bessel_function_splines(){
 
   for(size_t i = 0; i < ells.size(); i++){
     const int ell = ells[i];
-
-    // ...
-    // ...
-    // ...
-    // ...
+    Vector j_ell_array(npts+1);
+    for(int j=0; j<npts+1; j++){
+      double x = x_array[j];
+      j_ell_array[j] = Utils::j_ell(ell, x);
+    }
+    std::cout << "fucku" << std::endl;
+    Spline j_ell_spline_i;
+    j_ell_spline_i.create(x_array,j_ell_array, "j_ell_spline_i");
+    std::cout << "fuck2" << std::endl;
+    j_ell_splines[i] = j_ell_spline_i;
 
     // Make the j_ell_splines[i] spline
   }

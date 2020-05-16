@@ -3,7 +3,9 @@
 SHELL := /bin/bash
 
 # Set compiler
-CC = g++-9 -std=c++11
+#CC = g++-9 -std=c++11
+CC = g++-9 -std=c++17
+
 
 
 # Paths to GSL library

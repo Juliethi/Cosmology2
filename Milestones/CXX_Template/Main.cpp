@@ -79,14 +79,15 @@ int main(int argc, char **argv){
   pert.output(kvalue5, "perturbations_k0.3.txt");
   
   // Remove when module is completed
-  return 0;
+  //return 0;
   
   //=========================================================================
   // Module IV
   //=========================================================================
 
   PowerSpectrum power(&cosmo, &rec, &pert);
-  power.output("cells.txt");
+  power.solve();
+  //power.output("cells.txt");
   
   // Remove when module is completed
   return 0;
