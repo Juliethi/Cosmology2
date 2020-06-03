@@ -31,6 +31,10 @@ class PowerSpectrum {
     const int n_k      = 100;
     const double k_min = Constants.k_min;
     const double k_max = Constants.k_max;
+
+    //x values
+    const double x_start = Constants.x_start;
+    const double x_end = Constants.x_start;
     
     // The ells's we will compute Theta_ell and Cell for
     Vector ells{ 

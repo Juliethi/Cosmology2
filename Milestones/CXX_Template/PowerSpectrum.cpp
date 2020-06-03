@@ -65,7 +65,7 @@ void PowerSpectrum::generate_bessel_function_splines(){
   
   // Make storage for the splines
   j_ell_splines = std::vector<Spline>(ells.size());
-  int npts = 1e4;
+  int npts = 4e4;
   Vector x_array = Utils::linspace(0, npts, npts+1); 
   //=============================================================================
   // TODO: Compute splines for bessel functions j_ell(z)
@@ -81,10 +81,9 @@ void PowerSpectrum::generate_bessel_function_splines(){
       double x = x_array[j];
       j_ell_array[j] = Utils::j_ell(ell, x);
     }
-    std::cout << "fucku" << std::endl;
+
     Spline j_ell_spline_i;
     j_ell_spline_i.create(x_array,j_ell_array, "j_ell_spline_i");
-    std::cout << "fuck2" << std::endl;
     j_ell_splines[i] = j_ell_spline_i;
 
     // Make the j_ell_splines[i] spline
@@ -105,8 +104,30 @@ Vector2D PowerSpectrum::line_of_sight_integration_single(
 
   // Make storage for the results
   Vector2D result = Vector2D(ells.size(), Vector(k_array.size()));
+  
+  int npts = 4e4;
+  Vector x_array = Utils::linspace(x_start, x_end, npts);
 
   for(size_t ik = 0; ik < k_array.size(); ik++){
+    double k = k_array[ik];
+    for(size_t iell = 0; iell < ells.size(); iell++){
+      int ell = ells[iell];
+      Spline j_ell_spline = j_ell_splines[iell];
+
+      ODEFunction dThetadx = [&](double x, const double *Theta_ell, double *dThetadx){
+        double source_function = pert->get_Source_T(x, k);
+        double eta = cosmo->eta_of_x(x);
+        double eta_0 = cosmo->eta_of_x(0);
+        double j_ell = j_ell_spline(k*(eta_0 - eta));
+
+      return GSL_SUCCESS;
+      };
+
+
+
+
+    }
+    
 
     //=============================================================================
     // TODO: Implement to solve for the general line of sight integral 

@@ -1,0 +1,87 @@
+\documentclass[12pt]{article}
+\usepackage[left=2cm,top=2cm,right=2cm,bottom=2cm]{geometry}
+\usepackage[parfill]{parskip}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{listings}
+\lstloadlanguages{python}
+\usepackage{amssymb}
+\usepackage{braket}
+\usepackage{pdfpages}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{float}
+\usepackage{physics}
+%\usepackage{minted}
+%\usemintedstyle{pastie}
+
+
+\begin{document}
+    \begin{titlepage}
+        \begin{center}
+            \vspace*{5cm}
+            
+            \Huge
+            \textbf{Milestone 4}
+            
+            \vspace*{0.5cm}
+            \LARGE
+            AST5220
+        
+            \vspace*{0.5cm}
+        
+            \textbf{Julie Thingwall}
+        \end{center}
+    \end{titlepage}
+
+\section{Introduction}
+In this projet we wish to follow in the footsteps of Petter Callin\cite{callin2006calculate} who numerically reproduces the power spectrum obtained by the CMB data. This will be done in several steps, where each step simulates the different physical processes that make up the power spectrum.
+
+The previous milestones have consisted of calculating the background cosmology, the recombination history of the universe and the evolution of the different perturbations that make up the power spectrum. This final milestone consists of actually tusing all these previously calculated qunatities to create the CMB power spectrum. 
+
+As with previous milestones, all numerical solutions will be obtained by utilising the C++ code base provided by our lecturer, Hans Winther.
+
+\section{Theoretical background}
+\subsection{Spherical harmonics}
+To understand what the power spectrum represents, we have to start with understanding spherical harmonics. The temperature field that makes up the CMB can be represented using spherical harmonics, which reads as 
+
+\begin{equation}
+    T(\hat{n})=\sum_{\ell m} a_{\ell m} Y_{\ell m}(\hat{n}).
+\end{equation}
+
+Here, $T(\hat{n})$ represents the temperature in direction $\hat{n}$, $a_{lm}$ are the spherical harmonic coefficients, and $Y_{\ell m}$ are the spherical harmonic functions themselves. Spherical harmonics are wave functions on the sphere, they are completely analogous to fourier transformations in flat space. 
+
+The $\ell$s refer to scale, with smaller $\ell$s being bigger scales. For each $\ell$ we have $m=2\ell + 1$. Now, the CMB power spectrum shows us the expectation value for each $a_{\ell m}$, or
+
+\begin{equation}
+    C_{\ell} \equiv\left\langle\left|a_{\ell m}\right|^{2}\right\rangle=\left\langle a_{\ell m} a_{\ell m}^{*}\right\rangle.
+\end{equation}
+
+where we, for each $\ell$, take the average over all $m$. This is due to the universe being isotropic. 
+
+\subsection{The source function and line of sight integration}
+In Milestone 3, we calculated the photon temperature fluctuations $\Theta_\ell$ for $\ell \in [0,6]$. 
+
+Blablaba line of sight integration is cool
+
+\begin{equation}
+    \Theta_{\ell}(k, x=0)=\int_{-\infty}^{0} \tilde{S}(k, x) j_{\ell}\left[k\left(\eta_{0}-\eta\right)\right] d x
+\end{equation}
+
+Blablabaa source function 
+
+\begin{equation}
+    \tilde{S}(k, x)=\tilde{g}\left[\Theta_{0}+\Psi+\frac{1}{4} \Pi\right]+e^{-\tau}\left[\Psi^{\prime}-\Phi^{\prime}\right]-\frac{1}{c k} \frac{d}{d x}\left(\mathcal{H} \tilde{g} v_{b}\right)+\frac{3}{4 c^{2} k^{2}} \frac{d}{d x}\left[\mathcal{H} \frac{d}{d x}(\mathcal{H} \tilde{g} \Pi)\right]
+\end{equation}
+
+\subsection{The temperature and matter power spectrums}
+
+
+\section{Method}
+
+\section{Results}
+
+\bibliography{bibtex}{}
+\bibliographystyle{plain}
+
+\end{document}
