@@ -106,7 +106,7 @@ Vector2D PowerSpectrum::line_of_sight_integration_single(
   Vector2D result = Vector2D(ells.size(), Vector(k_array.size()));
   
   int npts = 4e4;
-  Vector x_array = Utils::linspace(x_start, x_end, npts);
+  Vector x_array = Utils::linspace(x_start, x_end, npts+1);
 
   for(size_t ik = 0; ik < k_array.size(); ik++){
     double k = k_array[ik];
@@ -119,12 +119,14 @@ Vector2D PowerSpectrum::line_of_sight_integration_single(
         double eta = cosmo->eta_of_x(x);
         double eta_0 = cosmo->eta_of_x(0);
         double j_ell = j_ell_spline(k*(eta_0 - eta));
-
+        dThetadx[0] = source_function*j_ell;
       return GSL_SUCCESS;
       };
 
-
-
+      Vector Theta_ic = {0.0};
+      ODESolver ode;
+      ode.solve(dThetadx, x_array, Theta_ic);
+      result[iell][ik] = ode.get_data_by_component(0)[npts]; //we are interested in theta_ell(k, x=0), so we get the last point of the integrated function for each ell and k
 
     }
     
@@ -168,6 +170,13 @@ void PowerSpectrum::line_of_sight_integration(Vector & k_array){
   // Do the line of sight integration
   Vector2D thetaT_ell_of_k = line_of_sight_integration_single(k_array, source_function_T);
 
+
+  for(size_t iell = 0; iell < ells.size(); iell++){
+    Spline theta_iell_spline;
+    theta_iell_spline.create(k_array, thetaT_ell_of_k[iell], "theta_iell_spline");
+    thetaT_ell_of_k_spline[iell] = theta_iell_spline;
+  }
+
   // Spline the result and store it in thetaT_ell_of_k_spline
   // ...
   // ...
@@ -201,13 +210,29 @@ Vector PowerSpectrum::solve_for_cell(
   // TODO: Integrate Cell = Int 4 * pi * P(k) f_ell g_ell dk/k
   // or equivalently solve the ODE system dCell/dlogk = 4 * pi * P(k) * f_ell * g_ell
   //============================================================================
+  Vector result(nells);
+  for(size_t iell = 0; iell < nells; iell++){
 
-  // ...
+    ODEFunction dCelldlogk = [&](double log_k, const double *C_ell, double *dCelldlogk){
+      double k = exp(log_k);
+      double k_pivot = kpivot_mpc/Constants.Mpc;
+      double f_ell = f_ell_spline[iell];
+      double g_ell = g_ell_spline[iell];
+    
+      dCelldlogk[0] = 4*M_PI*A_s*pow(k/k_pivot, n_s-1)*f_ell*g_ell;
+      return GSL_SUCCESS;
+      };
   // ...
   // ...
   // ...
 
-  Vector result;
+    
+    Vector C_ell_ini{0.0};
+    ODESolver ode;
+    ode.solve(dCelldlogk, log_k_array, C_ell_ini);
+    result[iell] = ode.get_data_by_component(0)[n_k-1];
+  }
+  
 
   return result;
 }
