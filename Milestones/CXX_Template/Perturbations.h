@@ -26,7 +26,7 @@ class Perturbations{
     const double k_max   = Constants.k_max;
     
     // Start and end of the time-integration
-    const int n_x        = 1000;
+    const int n_x        = 5000;
     const double x_start = Constants.x_start;
     const double x_end   = Constants.x_end;
 
@@ -113,6 +113,9 @@ class Perturbations{
     
     // Print some useful info about the class
     void info() const;
+
+    // Output for debugging source function
+    void output_source_function_terms(const double k, std::string filename) const;
 
     // Output info to file
     void output(const double k, const std::string filename) const;

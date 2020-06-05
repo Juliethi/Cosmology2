@@ -27,3 +27,27 @@ for i in range(len(data_list)):
     plt.plot(x, source_function_i, label = f"k={k_list[i]}")
 plt.legend()
 plt.show()
+
+terms_01 = np.genfromtxt("../sourcetermsk01.txt")
+terms_001 = np.genfromtxt("../sourcetermsk001.txt")
+terms_0001 = np.genfromtxt("../sourcetermsk0001.txt")
+
+terms_list = [terms_01, terms_001, terms_0001]
+k_list_terms = [0.1, 0.01, 0.001]
+n_terms = int(len(x))
+x_terms = terms_01[:,0]
+print(len(x))
+print(len(terms_list[0][:,1]))
+
+for i in range(1):
+    A_i = terms_list[i][:,1]
+    B_i = terms_list[i][:,2]
+    C_i = terms_list[i][:,3]
+    D_i = terms_list[i][:,4]
+    plt.plot(x_terms, A_i, label= f"A, k={k_list[i]}")
+    plt.plot(x_terms, B_i, label= f"B, k={k_list[i]}")
+    plt.plot(x_terms, C_i, label= f"C, k={k_list[i]}")
+    plt.plot(x_terms, D_i, label= f"D, k={k_list[i]}")
+plt.legend()
+plt.show()
+

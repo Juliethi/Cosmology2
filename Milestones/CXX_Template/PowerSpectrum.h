@@ -34,7 +34,7 @@ class PowerSpectrum {
 
     //x values
     const double x_start = Constants.x_start;
-    const double x_end = Constants.x_start;
+    const double x_end = Constants.x_end;
     
     // The ells's we will compute Theta_ell and Cell for
     Vector ells{ 
@@ -115,6 +115,9 @@ class PowerSpectrum {
     double get_cell_TT(const double ell) const;
     double get_cell_TE(const double ell) const;
     double get_cell_EE(const double ell) const;
+
+    //output functions for bug searching purposes 
+    void output_integrand_theta_ell(std::string filename) const;
 
     // Output Cells in units of l(l+1)/2pi (muK)^2
     void output(std::string filename) const;

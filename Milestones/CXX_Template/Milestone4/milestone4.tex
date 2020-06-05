@@ -60,25 +60,79 @@ The $\ell$s refer to scale, with smaller $\ell$s being bigger scales. For each $
 where we, for each $\ell$, take the average over all $m$. This is due to the universe being isotropic. 
 
 \subsection{The source function and line of sight integration}
-In Milestone 3, we calculated the photon temperature fluctuations $\Theta_\ell$ for $\ell \in [0,6]$. 
+In Milestone 3, we calculated the photon temperature fluctuations $\Theta_\ell$ for $\ell \in [0,6]$. But we are really interested in the interval $\ell \in [0,1200]$, at least! Luckily, we dont have to do the calculations from the last milestone 1200 times. Thanks to Zaldarriaga  and Seljak, we can instead do something called line of sight-integration (los-integration)! This integration takes on the form
 
-Blablaba line of sight integration is cool
-
-\begin{equation}
-    \Theta_{\ell}(k, x=0)=\int_{-\infty}^{0} \tilde{S}(k, x) j_{\ell}\left[k\left(\eta_{0}-\eta\right)\right] d x
+\begin{equation}\label{eq: line of sight integration}
+    \Theta_{\ell}(k, x=0)=\int_{-\infty}^{0} \tilde{S}(k, x) j_{\ell}\left[k\left(\eta_{0}-\eta\right)\right] d x,
 \end{equation}
 
-Blablabaa source function 
+where $\tilde{S}(k, x)$ is the source function, and $j_{\ell}\left[k\left(\eta_{0}-\eta\right)\right]$ are Bessel functions. The source function looks like
 
-\begin{equation}
-    \tilde{S}(k, x)=\tilde{g}\left[\Theta_{0}+\Psi+\frac{1}{4} \Pi\right]+e^{-\tau}\left[\Psi^{\prime}-\Phi^{\prime}\right]-\frac{1}{c k} \frac{d}{d x}\left(\mathcal{H} \tilde{g} v_{b}\right)+\frac{3}{4 c^{2} k^{2}} \frac{d}{d x}\left[\mathcal{H} \frac{d}{d x}(\mathcal{H} \tilde{g} \Pi)\right]
+\begin{equation}\label{eq: source function}
+    \tilde{S}(k, x)=\tilde{g}\left[\Theta_{0}+\Psi+\frac{1}{4} \Pi\right]+e^{-\tau}\left[\Psi^{\prime}-\Phi^{\prime}\right]-\frac{1}{c k} \frac{d}{d x}\left(\mathcal{H} \tilde{g} v_{b}\right)+\frac{3}{4 c^{2} k^{2}} \frac{d}{d x}\left[\mathcal{H} \frac{d}{d x}(\mathcal{H} \tilde{g} \Pi)\right].
 \end{equation}
+
+In essense, the source function explains the different physics that affect a photon on its journey from last scattering until we measure it as a CMB photon. The first term, which we can see is relevant at last scattering due to it being weighted by the visibility function, explains how a photon is affected at last scattering, when it climbs out of the gravitational wells created by the baryons before free-streaming towards us. This is called the Sachs-Wolfe term. The next term is the integrated Sachs-Wolfe term, which explains how a photon is affected when traveling throug changing gravitational potentials. The third term is a Doppler term, and the fourth term is the term-who-must-not-be-named, apparently!
+
+With los-integration, we dont have to solve all the coupled differential equations for each ell, we only need to solve \cref{eq: line of sight integration} instead, which greatly reduces computational time!
 
 \subsection{The temperature and matter power spectrums}
+For this milestone we are interested in both the temperature power spectrum and the matter power spectrum. 
+
+The temperature power spectrum takes on the form 
+
+\begin{equation}\label{eq: temp photon spectrum unfinished}
+    C_{\ell}=\frac{2}{\pi} \int k^{2} P_{\text {primordial }}(k) \Theta_{\ell}^{2}(k) d k
+\end{equation}
+
+where $P_{\text {primordial }}(k)$, the primordial power spectrum, looks like
+
+\begin{equation}
+\frac{k^{3}}{2 \pi^{2}} P_{\text {primordial }}(k)=A_{s}\left(\frac{k}{k_{\text {pivot }}}\right)^{n_{s}-1}.
+\end{equation}
+
+Here, $n_s$ is the spectral index for scalar perturbation, which takes on the value $n_s \approx 0.96$. $k_{pivot}$ is some scale where the amplitude is $A_s$ For our universe, we have $A_s \approx 2\times10^{-9}$ and $k_{pivot} \approx 0.05/\mathrm{Mpc}$.
+
+
+The primordial power spectrum sets up the anisotropies from inflation?? idk 
+
+Adding this back \cref{eq: temp photon spectrum unfinished}, we get
+
+\begin{equation}\label{eq temp power spectrum}
+C_{\ell}=4 \pi \int_{0}^{\infty} A_{s}\left(\frac{k}{k_{\mathrm{pivot}}}\right)^{n_{s}-1} \Theta_{\ell}^{2}(k) \frac{d k}{k}.
+\end{equation}
+This is the integral we wish to solve. 
+
+For the matter power spectrum, we simply have 
+
+\begin{equation}
+P(k, x)=\left|\Delta_{M}(k, x)\right|^{2} P_{\text {primordial }}(k)
+\end{equation}
+
+where 
+
+\begin{equation}
+\Delta_{M}(k, x) \equiv \frac{c^{2} k^{2} \Phi(k, x)}{\frac{3}{2} \Omega_{M 0} a^{-1} H_{0}^{2}}.
+\end{equation}
 
 
 \section{Method}
+\subsection{Code structure and parameters}
+All main coding was done in the \texttt{PowerSpectrum.cpp} file. The differntial equations were solved using the ODESolver found in the GSL library.All visualisation was done in \texttt{Milestone4\_plot.py}. 
 
+All solutions where found in the interval $x\in[-12,0]$. Ideally, this intervall should have been bigger, but due to limitations from milestone 2, the optical depth was only solved for $x>-12$. We solved the equations for 100 $k$-values logarithmically spaced, in the interval $k\in[0.00005/\mathrm{Mpc}, 0.3/\mathrm{Mpc}]$. We solve for a set of $\ell$'s in the range $\ell \in [2, 2000]$. 
+
+\subsection{Bessel splines}
+First of all, we needed to spline bessel functions blabla
+
+\subsection{LOS-integration to LOS-ODE}
+\begin{equation}
+\frac{d \Theta_{\ell}(k, x)}{d x}=\tilde{S}(k, x) j_{\ell}\left[k\left(\eta_{0}-\eta\right)\right], \quad \Theta_{\ell}(k,-\infty)=0
+\end{equation}
+
+\subsection{Temperature power spectrum}
+
+\subsection{Matter power spectrum}
 \section{Results}
 
 \bibliography{bibtex}{}

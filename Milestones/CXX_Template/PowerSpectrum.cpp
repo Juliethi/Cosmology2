@@ -66,7 +66,7 @@ void PowerSpectrum::generate_bessel_function_splines(){
   // Make storage for the splines
   j_ell_splines = std::vector<Spline>(ells.size());
   int npts = 4e4;
-  Vector x_array = Utils::linspace(0, npts, npts+1); 
+  Vector x_array = Utils::linspace(0, 4e4, npts+1); 
   //=============================================================================
   // TODO: Compute splines for bessel functions j_ell(z)
   // Choose a suitable range for each ell
@@ -108,12 +108,13 @@ Vector2D PowerSpectrum::line_of_sight_integration_single(
   int npts = 4e4;
   Vector x_array = Utils::linspace(x_start, x_end, npts+1);
 
+  #pragma omp parallel for schedule(dynamic, 1)
   for(size_t ik = 0; ik < k_array.size(); ik++){
     double k = k_array[ik];
     for(size_t iell = 0; iell < ells.size(); iell++){
+      double integral = 0;
       int ell = ells[iell];
       Spline j_ell_spline = j_ell_splines[iell];
-
       ODEFunction dThetadx = [&](double x, const double *Theta_ell, double *dThetadx){
         double source_function = pert->get_Source_T(x, k);
         double eta = cosmo->eta_of_x(x);
@@ -125,9 +126,10 @@ Vector2D PowerSpectrum::line_of_sight_integration_single(
 
       Vector Theta_ic = {0.0};
       ODESolver ode;
+      double hstart = 1e-3, abserr = 1e-6, relerr = 1e-6;
+      ode.set_accuracy(hstart, abserr, relerr);
       ode.solve(dThetadx, x_array, Theta_ic);
-      result[iell][ik] = ode.get_data_by_component(0)[npts]; //we are interested in theta_ell(k, x=0), so we get the last point of the integrated function for each ell and k
-
+      result[iell][ik] = ode.get_data_by_component(0)[npts];
     }
     
 
@@ -186,14 +188,7 @@ void PowerSpectrum::line_of_sight_integration(Vector & k_array){
   //============================================================================
   // TODO: Solve for ThetaE_ell(k) and spline
   //============================================================================
-  if(Constants.polarization){
 
-    // ...
-    // ...
-    // ...
-    // ...
-
-  }
 }
 
 //====================================================
@@ -215,20 +210,19 @@ Vector PowerSpectrum::solve_for_cell(
 
     ODEFunction dCelldlogk = [&](double log_k, const double *C_ell, double *dCelldlogk){
       double k = exp(log_k);
-      double k_pivot = kpivot_mpc/Constants.Mpc;
-      double f_ell = f_ell_spline[iell];
-      double g_ell = g_ell_spline[iell];
+      //double k_pivot = kpivot_mpc/Constants.Mpc;
+      double f_ell = f_ell_spline[iell](k);
+      double g_ell = g_ell_spline[iell](k);
+      double P = primordial_power_spectrum(k);
     
-      dCelldlogk[0] = 4*M_PI*A_s*pow(k/k_pivot, n_s-1)*f_ell*g_ell;
+      dCelldlogk[0] = 4*M_PI*P*f_ell*g_ell;
       return GSL_SUCCESS;
       };
-  // ...
-  // ...
-  // ...
-
     
     Vector C_ell_ini{0.0};
     ODESolver ode;
+    double hstart = 1e-3, abserr = 1e-6, relerr = 1e-6;
+    ode.set_accuracy(hstart, abserr, relerr);
     ode.solve(dCelldlogk, log_k_array, C_ell_ini);
     result[iell] = ode.get_data_by_component(0)[n_k-1];
   }
@@ -275,6 +269,39 @@ double PowerSpectrum::get_cell_TE(const double ell) const{
 double PowerSpectrum::get_cell_EE(const double ell) const{
   return cell_EE_spline(ell);
 }
+
+//====================================================
+// Differnt output functions to find errors
+//====================================================
+
+void PowerSpectrum::output_integrand_theta_ell(std::string filename) const{
+  std::ofstream fp(filename.c_str());
+  double npts = 1e4;
+  Vector x_array = Utils::linspace(x_start, x_end, npts+1);
+  //std::cout << x_start << " " << x_end << std::endl;
+  //std::cout << x_array.size() << std::endl;
+  //std::cout << x_array[0] << x_array[100] << std::endl; 
+  for(int ix = 0; ix < npts; ix++){
+      //std::cout << "ix=" << ix << std::endl;
+      //std::cout << x_array[ix] << std::endl;
+      double x = x_array[ix];
+      //std::cout << "x= " << x << std::endl;
+      double k = 340*cosmo->get_H0()/Constants.c;
+      double source_function = pert->get_Source_T(x, k);
+      double eta = cosmo->eta_of_x(x);
+      double eta_0 = cosmo->eta_of_x(0);
+      //std::cout << n_k)"bessel input" << k*(eta_0-eta);
+      double j_ell = j_ell_splines[19](k*(eta_0 - eta)); //iell = 19 -> ell=100
+      double integrand = j_ell*source_function;
+      //std::cout << "integrand=" << integrand << std::endl;
+      fp << x << " ";
+      fp << integrand << " ";
+      fp << "\n"; 
+  }
+
+  
+}
+
 
 //====================================================
 // Output the cells to file

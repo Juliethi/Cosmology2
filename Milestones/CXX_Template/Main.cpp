@@ -77,7 +77,11 @@ int main(int argc, char **argv){
 
   double kvalue5 = Constants.k_max; //0.3/Mpc
   pert.output(kvalue5, "perturbations_k0.3.txt");
-  
+
+  //pert.output_source_function_terms(kvalue1, "sourcetermsk01.txt");
+  //pert.output_source_function_terms(kvalue2, "sourcetermsk001.txt");
+  //pert.output_source_function_terms(kvalue3, "sourcetermsk0001.txt");
+
   // Remove when module is completed
   //return 0;
   
@@ -88,6 +92,11 @@ int main(int argc, char **argv){
   PowerSpectrum power(&cosmo, &rec, &pert);
   power.solve();
   power.output("cells.txt");
+  //power.output("cells_SW.txt");
+  //power.output("cells_ISW.txt");
+  //power.output("cells_Doppler.txt");
+  //power.output("cells_lastterm.txt");
+  //power.output_integrand_theta_ell("integrand.txt");
   
   // Remove when module is completed
   return 0;

@@ -508,20 +508,9 @@ void Perturbations::compute_source_functions(){
       double A = g*(theta0 + Psi + 1./4.*theta2);
       double B = exp(-tau)*(dPsidx - dPhidx);
       double C = 1./ck*(dhpdx*g*vb + Hp*dgdx*vb + Hp*g*dvbdx);
-      double D = 3./(4.*ck*ck) * (dhpdx*dhpdx + Hp*ddhpdx)*g*theta2 + 3.*Hp*dhpdx*(dgdx*theta2 + g*dtheta2dx) + Hp*Hp*(ddgdx*theta2 + 2.*dgdx*dtheta2dx + g*ddtheta2dx);
+      //double D = 3./(4.*ck*ck) * (dhpdx*dhpdx + Hp*ddhpdx)*g*theta2 + 3.*Hp*dhpdx*(dgdx*theta2 + g*dtheta2dx) + Hp*Hp*(ddgdx*theta2 + 2.*dgdx*dtheta2dx + g*ddtheta2dx);
       // Temperatur source
-      ST_array[index] = A + B - C + D;
-      /*
-      std::cout << "A= " << A << std::endl;
-      std::cout << "B= " << B << std::endl;
-      std::cout << "C= " << C << std::endl;
-      std::cout << "D= " << D << std::endl;
-      */
-      
-      //std::cout << ST_array[0] << std::endl;
-      
-      
-
+      ST_array[index] = A + B - C; //+ D;
     }
   }
 
@@ -734,6 +723,8 @@ double Perturbations::get_Nu(const double x, const double k, const int ell) cons
   return Nu_spline[ell](x,k);
 }
 
+
+
 //====================================================
 // Print some useful info about the class
 //====================================================
@@ -789,6 +780,62 @@ void Perturbations::info() const{
   std::cout << "n_ell_tot_tc:       " << Constants.n_ell_tot_tc         << "\n";
   std::cout << std::endl;
 }
+
+
+
+//====================================================
+// Output debugging source function term
+//====================================================
+void Perturbations::output_source_function_terms(const double k, std::string filename) const{
+  std::ofstream fp(filename.c_str());
+  int npts = 1e3;
+  Vector x_array = Utils::linspace(x_start, x_end, npts+1);
+  //Vector k_array = {0.1/Constants.Mpc, 0.01/Constants.Mpc, 0.001/Constants.Mpc};
+  for(int ix = 0; ix<npts;ix++){
+      double x = x_array[ix];
+      //double k = 0.01/Constants.Mpc;
+      const double Hp = cosmo->Hp_of_x(x);
+      const double dhpdx = cosmo->dHpdx_of_x(x);
+      const double ddhpdx = cosmo->ddHpddx_of_x(x);
+
+      const double g = rec->g_tilde_of_x(x);
+      const double dgdx = rec->dgdx_tilde_of_x(x);
+      const double ddgdx = rec->ddgddx_tilde_of_x(x);
+      const double tau = rec->tau_of_x(x);
+
+      const double theta0 = get_Theta(x, k, 0);
+      const double theta2 = get_Theta(x, k, 2);
+      const double dtheta2dx = Theta_2_spline.deriv_x(x,k);
+      const double ddtheta2dx = Theta_2_spline.deriv_xx(x,k);
+
+      const double Psi = get_Psi(x,k);
+      const double Phi = get_Phi(x,k);
+
+      const double dPsidx = Psi_spline.deriv_x(x,k);
+      const double dPhidx = Phi_spline.deriv_x(x,k);
+
+      const double vb = get_v_b(x, k);
+      const double dvbdx = v_b_spline.deriv_x(x,k);
+
+      const double c = Constants.c;
+      double ck = c*k;
+
+      double A = g*(theta0 + Psi + 1./4.*theta2);
+      double B = exp(-tau)*(dPsidx - dPhidx);
+      double C = -1./ck*(dhpdx*g*vb + Hp*dgdx*vb + Hp*g*dvbdx);
+      double D = 3./(4.*ck*ck) * (dhpdx*dhpdx + Hp*ddhpdx)*g*theta2 + 3.*Hp*dhpdx*(dgdx*theta2 + g*dtheta2dx) + Hp*Hp*(ddgdx*theta2 + 2.*dgdx*dtheta2dx + g*ddtheta2dx);
+
+      fp << x << " ";
+      fp << A << " ";
+      fp << B << " ";
+      fp << C << " ";
+      fp << D << " ";
+      fp << "\n";
+
+  }
+
+}
+
 
 //====================================================
 // Output some results to file for a given value of k
