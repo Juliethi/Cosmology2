@@ -92,11 +92,14 @@ int main(int argc, char **argv){
   PowerSpectrum power(&cosmo, &rec, &pert);
   power.solve();
   power.output("cells.txt");
+  power.output_matter_pk("powerspectrum.txt");
+
+
   //power.output("cells_SW.txt");
   //power.output("cells_ISW.txt");
   //power.output("cells_Doppler.txt");
   //power.output("cells_lastterm.txt");
-  //power.output_integrand_theta_ell("integrand.txt");
+  power.output_integrand_theta_ell("integrand.txt");
   
   // Remove when module is completed
   return 0;

@@ -206,6 +206,7 @@ Vector PowerSpectrum::solve_for_cell(
   // or equivalently solve the ODE system dCell/dlogk = 4 * pi * P(k) * f_ell * g_ell
   //============================================================================
   Vector result(nells);
+  #pragma omp parallel for schedule(dynamic, 1)
   for(size_t iell = 0; iell < nells; iell++){
 
     ODEFunction dCelldlogk = [&](double log_k, const double *C_ell, double *dCelldlogk){
@@ -244,15 +245,14 @@ double PowerSpectrum::primordial_power_spectrum(const double k) const{
 //====================================================
 
 double PowerSpectrum::get_matter_power_spectrum(const double x, const double k_mpc) const{
-  double pofk = 0.0;
-
-  //=============================================================================
-  // TODO: Compute the matter power spectrum
-  //=============================================================================
-
-  // ...
-  // ...
-  // ...
+  double k = k_mpc;
+  double c = Constants.c;
+  double Psi = pert->get_Psi(x,k_mpc);
+  double Omega_M = cosmo->get_OmegaB(0) + cosmo->get_OmegaCDM(0);
+  double H0 = cosmo->get_H0();
+  double C = 2*M_PI*M_PI/pow(k,3);
+  double delta_M = (2.*c*c*k*k*Psi*exp(x))/(3.*Omega_M*H0*H0);
+  double pofk = abs(delta_M*delta_M)*primordial_power_spectrum(k)*C;
 
   return pofk;
 }
@@ -271,37 +271,45 @@ double PowerSpectrum::get_cell_EE(const double ell) const{
 }
 
 //====================================================
-// Differnt output functions to find errors
+// Output functions
 //====================================================
 
 void PowerSpectrum::output_integrand_theta_ell(std::string filename) const{
   std::ofstream fp(filename.c_str());
   double npts = 1e4;
   Vector x_array = Utils::linspace(x_start, x_end, npts+1);
-  //std::cout << x_start << " " << x_end << std::endl;
-  //std::cout << x_array.size() << std::endl;
-  //std::cout << x_array[0] << x_array[100] << std::endl; 
   for(int ix = 0; ix < npts; ix++){
-      //std::cout << "ix=" << ix << std::endl;
-      //std::cout << x_array[ix] << std::endl;
       double x = x_array[ix];
-      //std::cout << "x= " << x << std::endl;
       double k = 340*cosmo->get_H0()/Constants.c;
       double source_function = pert->get_Source_T(x, k);
       double eta = cosmo->eta_of_x(x);
       double eta_0 = cosmo->eta_of_x(0);
-      //std::cout << n_k)"bessel input" << k*(eta_0-eta);
       double j_ell = j_ell_splines[19](k*(eta_0 - eta)); //iell = 19 -> ell=100
       double integrand = j_ell*source_function;
-      //std::cout << "integrand=" << integrand << std::endl;
       fp << x << " ";
       fp << integrand << " ";
       fp << "\n"; 
   }
-
-  
 }
 
+void PowerSpectrum::output_matter_pk(std::string filename) const{
+  std::ofstream fp(filename.c_str());
+  
+  double x = 0;
+  Vector log_k_array = Utils::linspace(log(k_min), log(k_max), n_k);
+  Vector k_array = exp(log_k_array);
+  double k_peak = cosmo->get_H0()*(cosmo->get_OmegaB(0) + cosmo->get_OmegaCDM(0))*sqrt(2/cosmo->get_OmegaR(0));
+  fp << k_peak << " ";
+  fp << "\n";
+
+  for(int ik=0;ik < n_k; ik++){
+    double k = k_array[ik]; ///Constants.Mpc;
+    double pofk = get_matter_power_spectrum(x, k);
+    fp << k << " ";
+    fp << pofk << " ";
+    fp <<"\n";
+  }
+}
 
 //====================================================
 // Output the cells to file

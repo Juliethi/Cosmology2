@@ -5,7 +5,8 @@ matplotlib.rcParams.update({'font.size': 14})
 import os
 
 
-
+Mpc = 3.08567758e22
+h = 0.7
 
 cells = np.genfromtxt("../cells.txt")
 integrand = np.genfromtxt("../integrand.txt")
@@ -37,4 +38,15 @@ plt.loglog(ells, cells_doppler[:,1])
 plt.loglog(ells, cells_lastterm[:,1])
 plt.ylim(1e-1,1e4)
 plt.legend(["full","sw", "isw", "Doppler", "D"])
-#plt.show()
+plt.show()
+
+matter = np.genfromtxt("../powerspectrum.txt")
+k_peak = matter[0,0]#*Mpc/h
+print(k_peak)
+k = matter[1:,0]#*Mpc/h
+pk = matter[1:,1]*(h/Mpc)**3
+
+n_k = int(len(k))
+plt.loglog(k, pk)
+plt.vlines(k_peak, pk[0], pk[-1])
+plt.show()
