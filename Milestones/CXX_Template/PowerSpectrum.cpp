@@ -65,8 +65,9 @@ void PowerSpectrum::generate_bessel_function_splines(){
   
   // Make storage for the splines
   j_ell_splines = std::vector<Spline>(ells.size());
-  int npts = 4e4;
-  Vector x_array = Utils::linspace(0, 4e4, npts+1); 
+  int npts = 1e4;
+  Vector log_z_array = Utils::linspace(log(1e-8), log(4e4), npts+1); 
+  Vector z_array = exp(log_z_array);
   //=============================================================================
   // TODO: Compute splines for bessel functions j_ell(z)
   // Choose a suitable range for each ell
@@ -78,12 +79,12 @@ void PowerSpectrum::generate_bessel_function_splines(){
     const int ell = ells[i];
     Vector j_ell_array(npts+1);
     for(int j=0; j<npts+1; j++){
-      double x = x_array[j];
-      j_ell_array[j] = Utils::j_ell(ell, x);
+      double z = z_array[j];
+      j_ell_array[j] = Utils::j_ell(ell, z);
     }
 
     Spline j_ell_spline_i;
-    j_ell_spline_i.create(x_array,j_ell_array, "j_ell_spline_i");
+    j_ell_spline_i.create(log_z_array,j_ell_array, "j_ell_spline_i");
     j_ell_splines[i] = j_ell_spline_i;
 
     // Make the j_ell_splines[i] spline
@@ -105,12 +106,15 @@ Vector2D PowerSpectrum::line_of_sight_integration_single(
   // Make storage for the results
   Vector2D result = Vector2D(ells.size(), Vector(k_array.size()));
   
-  int npts = 4e4;
+  int npts = 2e3;
   Vector x_array = Utils::linspace(x_start, x_end, npts+1);
 
   #pragma omp parallel for schedule(dynamic, 1)
   for(size_t ik = 0; ik < k_array.size(); ik++){
     double k = k_array[ik];
+
+    std::cout << "ik= " << ik << std::endl;
+
     for(size_t iell = 0; iell < ells.size(); iell++){
       double integral = 0;
       int ell = ells[iell];
@@ -119,7 +123,12 @@ Vector2D PowerSpectrum::line_of_sight_integration_single(
         double source_function = pert->get_Source_T(x, k);
         double eta = cosmo->eta_of_x(x);
         double eta_0 = cosmo->eta_of_x(0);
-        double j_ell = j_ell_spline(k*(eta_0 - eta));
+        double bessel_term = k*(eta_0 - eta);
+
+        if(bessel_term < 1e-8){
+          bessel_term = 1e-8;
+        }
+        double j_ell = j_ell_spline(log(bessel_term));
         dThetadx[0] = source_function*j_ell;
       return GSL_SUCCESS;
       };
@@ -284,7 +293,7 @@ void PowerSpectrum::output_integrand_theta_ell(std::string filename) const{
       double source_function = pert->get_Source_T(x, k);
       double eta = cosmo->eta_of_x(x);
       double eta_0 = cosmo->eta_of_x(0);
-      double j_ell = j_ell_splines[19](k*(eta_0 - eta)); //iell = 19 -> ell=100
+      double j_ell = j_ell_splines[19](log(k*(eta_0 - eta))); //iell = 19 -> ell=100
       double integrand = j_ell*source_function;
       fp << x << " ";
       fp << integrand << " ";
@@ -300,6 +309,7 @@ void PowerSpectrum::output_matter_pk(std::string filename) const{
   Vector k_array = exp(log_k_array);
   double k_peak = cosmo->get_H0()*(cosmo->get_OmegaB(0) + cosmo->get_OmegaCDM(0))*sqrt(2/cosmo->get_OmegaR(0));
   fp << k_peak << " ";
+  fp << 0 << " ";
   fp << "\n";
 
   for(int ik=0;ik < n_k; ik++){
@@ -309,6 +319,23 @@ void PowerSpectrum::output_matter_pk(std::string filename) const{
     fp << pofk << " ";
     fp <<"\n";
   }
+}
+
+void PowerSpectrum::output_theta_l(const int iell, std::string filename) const{
+  std::ofstream fp(filename.c_str());
+  Vector log_k_array = Utils::linspace(log(k_min), log(k_max), n_k);
+  Vector k_array = exp(log_k_array);
+  Spline theta_spline = thetaT_ell_of_k_spline[iell];
+  for(int ik = 0; ik < n_k; ik++){
+    double k = k_array[ik];
+    double theta = theta_spline(k);
+    fp << k << " ";
+    fp << theta << " ";
+    fp <<"\n";
+  }
+  
+
+
 }
 
 //====================================================

@@ -67,6 +67,7 @@ void Perturbations::integrate_perturbations(){
 
 
   // Loop over all wavenumbers
+  #pragma omp parallel for schedule(dynamic, 1)
   for(int ik = 0; ik < n_k; ik++){
     //std::cout << "ik=" << ik << std::endl;
     // Progress bar...
@@ -508,7 +509,7 @@ void Perturbations::compute_source_functions(){
       double A = g*(theta0 + Psi + 1./4.*theta2);
       double B = exp(-tau)*(dPsidx - dPhidx);
       double C = 1./ck*(dhpdx*g*vb + Hp*dgdx*vb + Hp*g*dvbdx);
-      //double D = 3./(4.*ck*ck) * (dhpdx*dhpdx + Hp*ddhpdx)*g*theta2 + 3.*Hp*dhpdx*(dgdx*theta2 + g*dtheta2dx) + Hp*Hp*(ddgdx*theta2 + 2.*dgdx*dtheta2dx + g*ddtheta2dx);
+      double D = 3./(4.*ck*ck) * (dhpdx*dhpdx + Hp*ddhpdx)*g*theta2 + 3.*Hp*dhpdx*(dgdx*theta2 + g*dtheta2dx) + Hp*Hp*(ddgdx*theta2 + 2.*dgdx*dtheta2dx + g*ddtheta2dx);
       // Temperatur source
       ST_array[index] = A + B - C; //+ D;
     }

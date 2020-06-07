@@ -91,15 +91,29 @@ int main(int argc, char **argv){
 
   PowerSpectrum power(&cosmo, &rec, &pert);
   power.solve();
-  power.output("cells.txt");
+  //power.output("cells.txt");
   power.output_matter_pk("powerspectrum.txt");
-
+  
+  //Vector iell_array = {0,10,20,30,40,50,60};
+  /*
+  power.output_theta_l(0, "thetas_0.txt");
+  power.output_theta_l(10, "thetas_10.txt");
+  power.output_theta_l(20, "thetas_20.txt");
+  power.output_theta_l(30, "thetas_30.txt");
+  power.output_theta_l(40, "thetas_40.txt");
+  power.output_theta_l(50, "thetas_50.txt");
+  power.output_theta_l(60, "thetas_60.txt");
+  */
+  
 
   //power.output("cells_SW.txt");
   //power.output("cells_ISW.txt");
   //power.output("cells_Doppler.txt");
   //power.output("cells_lastterm.txt");
-  power.output_integrand_theta_ell("integrand.txt");
+  //power.output("cells_full.txt");
+  //power.output("cells_nolastterm.txt");
+
+  //power.output_integrand_theta_ell("integrand.txt");
   
   // Remove when module is completed
   return 0;
