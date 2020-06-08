@@ -86,7 +86,7 @@ ells_list = [
         400,  450,  500,  550,  600,  650,  700,  750,  800,  850,  
         900,  950,  1000, 1050, 1100, 1150, 1200, 1250, 1300, 1350, 
         1400, 1450, 1500, 1550, 1600, 1650, 1700, 1750, 1800, 1850, 
-        1900, 1950, 20009]
+        1900, 1950, 2000]
 
 iell_list = [0,10,20,60]
 
@@ -101,8 +101,8 @@ def plot_transfer_function():
         plt.loglog(k_theta, theta_list[i][:,1], label = f"$\ell$={ells_list[iell_list[i]]}")
     plt.yscale("symlog", linthreshy=1e-5)
     plt.title(r"Transfer function $\Theta_{\ell}(k)$")
-    plt.xlabel(r"k [h/Mpc]")
-    plt.ylabel(r"$\Theta_{\ell}(k)$ [Mpc/h]$^3$")
+    plt.xlabel(r"k [1/Mpc]")
+    plt.ylabel(r"$\Theta_{\ell}(k)$")
     plt.legend()
     plt.tight_layout()
     plt.savefig("transerfunction.pdf")
@@ -113,18 +113,19 @@ def plot_theta_integrand():
     for i in range(len(theta_list)):
         integrand = theta_list[i][:,1]**2/k_theta
         plt.loglog(k_theta, integrand, label = f"$\ell$={ells_list[iell_list[i]]}")
-    plt.yscale("symlog", linthreshy=1e-5)
+    #plt.yscale("symlog", linthreshy=1e-5)
     plt.title(r"Spectrum integrand $\Theta_{\ell}(k)^2/k$")
-    plt.xlabel(r"k [h/Mpc]")
-    plt.ylabel(r"$\Theta_{\ell}(k)^2/k$ [Mpc/h]$^3$")
+    plt.xlabel(r"k [1/Mpc]")
+    plt.ylabel(r"$\Theta_{\ell}(k)^2/k$")
+    plt.ylim([1e-6,1e2])
     plt.legend()
     plt.tight_layout()
     plt.savefig("thetaintegrand.pdf")
     plt.show()   
 
 
-#plot_transfer_function()
-#plot_theta_integrand()
+plot_transfer_function()
+plot_theta_integrand()
 
 """PLOT MATTER POWER SPECTRUM"""
 

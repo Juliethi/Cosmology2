@@ -105,7 +105,7 @@ This is the integral we wish to solve.
 
 For the matter power spectrum, we simply have 
 
-\begin{equation}
+\begin{equation}\label{eq matter power spectrum}
 P(k, x)=\left|\Delta_{M}(k, x)\right|^{2} P_{\text {primordial }}(k)
 \end{equation}
 
@@ -120,20 +120,80 @@ where
 \subsection{Code structure and parameters}
 All main coding was done in the \texttt{PowerSpectrum.cpp} file. The differntial equations were solved using the ODESolver found in the GSL library.All visualisation was done in \texttt{Milestone4\_plot.py}. 
 
-All solutions where found in the interval $x\in[-12,0]$. Ideally, this intervall should have been bigger, but due to limitations from milestone 2, the optical depth was only solved for $x>-12$. We solved the equations for 100 $k$-values logarithmically spaced, in the interval $k\in[0.00005/\mathrm{Mpc}, 0.3/\mathrm{Mpc}]$. We solve for a set of $\ell$'s in the range $\ell \in [2, 2000]$. 
+All solutions where found in the interval $x\in[-12,0]$. Ideally, this intervall should have been bigger, but due to limitations from milestone 2, the optical depth was only solved for $x>-12$. We solved the equations for 1000 $k$-values logarithmically spaced, in the interval $k\in[0.00005/\mathrm{Mpc}, 0.3/\mathrm{Mpc}]$. We solved for a set of $\ell$'s in the range $\ell \in [2, 2000]$. 
 
 \subsection{Bessel splines}
-First of all, we needed to spline bessel functions blabla
+First of all, we needed to spline the bessel functions for each $\ell$. We did this logarithmically spaced with values ragning from $log(1e-8)$ to $log(4e4)$.
 
 \subsection{LOS-integration to LOS-ODE}
+To solve the line of sight integration, we wrote \cref{eq: line of sight integration} as an ordinary differential equation on the form
 \begin{equation}
-\frac{d \Theta_{\ell}(k, x)}{d x}=\tilde{S}(k, x) j_{\ell}\left[k\left(\eta_{0}-\eta\right)\right], \quad \Theta_{\ell}(k,-\infty)=0
+\frac{d \Theta_{\ell}(k, x)}{d x}=\tilde{S}(k, x) j_{\ell}\left[k\left(\eta_{0}-\eta\right)\right], \quad \Theta_{\ell}(k,-\infty)=0, 
 \end{equation}
+
+with initial conditions $\Theta_{\ell}(k, x=-\infty) \approx \Theta_{\ell}(k, x=-12) = 0$. This was solved using GSLs ODESolver.
+
+While we mainly wanted to find $Theta_{\ell}$ to compute the temperature power spectrum, we also plotted the transfer function $\Theta_{\ell}(k)$ and the spectrum integrand $\Theta_{\ell}^2(k)/k$ for a diverse set of $\ell$-values.
+
+\subsection{Temperature power spectrum}
+We also solved \cref{eq temp power spectrum} using the ODESolver. To do this we rewrote the equation as
+
+\begin{equation}
+    \frac{dC_{\ell}}{d\mathrm{log}k}= 4\pi A_{s}\left(\frac{k}{k_{\mathrm{pivot}}}\right)^{n_{s}-1} \Theta_{\ell}^{2}(k) 
+\end{equation}
+
+where we have used the fact that $\frac{dC_{\ell}}{d\mathrm{log}k} = k\frac{dC_{\ell}}{dk}$, with initial conditions $C_{\ell}(k_{\mathrm{min}}) = 0$. 
+
+The result from this integration was normalized by a factor $\frac{\ell(\ell + 1)}{2\pi}(10^6 \times T_{\mathrm{CMB}})^2.$
+
+The first result of the temperature power spectrum was too large for large values of $\ell$. To investigate the source of this error, we plotted the contribution from each term of the source function separately. In doing so we found that the last term was several orders of magnitudes larger than it should be. This is probably due to some error in the derivatives of $\Theta_2$, which are the only variable unique to this last term. Unable to find this error within reasonable time, this term was dropped in the final results. Originally this term is the smallest of all the terms in the source function, most of the effect on the power spectrum stems from the Sachs-Wolfe term, so not including this last term leads to less errors than including it the way it looks now.
+
+\subsection{Matter power spectrum}
+Calculating the matter power spectrum was pretty straight forward. We only needed to calculate \cref{eq matter power spectrum}. We also wanted to find $k_{\mathrm{peak}} = \mathcal{H}(a_{eq}).$ This was done by blablablaba
+
+\section{Results}
+\subsection{Thetas}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.99\textwidth]{transerfunction.pdf} 
+    \label{fig:transferfunction}
+    \caption{Plot showing the transfer function for a few selected values of $\ell$. The $\Theta$'s shown here is calculated }
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.99\textwidth]{thetaintegrand.pdf} 
+    \label{fig:spectrum integrand}
+    \caption{Plot showing the spectrum integrand for a few selected values of $\ell$.}
+\end{figure}
+
 
 \subsection{Temperature power spectrum}
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.99\textwidth]{cells_full.pdf} 
+    \label{fig:cell full}
+    \caption{Plot showing the temperature power spectrum when including all four terms in the source function. Here we see that the Sachs-Wolfe plateu is nonexsistent, as the power spectrum is increasing at large $\ell$'s. This means something is wrong.}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.49\textwidth]{cells_component.pdf}
+    \includegraphics[width=0.49\textwidth]{cells_compare.pdf}  
+    \label{fig:cell debugging}
+    \caption{Plots showing how the different terms in the source function affect the power spectrum. The left plot shows the temperature perturbations would look if only one of the terms contributed to the power spectrum. The right plot shows the difference between including and excluding the last source function term. Here we see that the source of the error in the full solution is definietly this last term, as it raises the amplitude of the power spectrum for large scales.}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.99\textwidth]{cells_nolastterm.pdf} 
+    \label{fig:cell debugging}
+    \caption{Plot showing the temperature power spectrum when excluding the fourth term in the source function.}
+\end{figure}
+
 \subsection{Matter power spectrum}
-\section{Results}
 
 \bibliography{bibtex}{}
 \bibliographystyle{plain}
