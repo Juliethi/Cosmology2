@@ -154,43 +154,56 @@ Calculating the matter power spectrum was pretty straight forward. We only neede
 \section{Results}
 \subsection{Thetas}
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.99\textwidth]{transerfunction.pdf} 
-    \label{fig:transferfunction}
-    \caption{Plot showing the transfer function for a few selected values of $\ell$. The $\Theta$'s shown here is calculated }
-\end{figure}
+In \cref{fig:thetas} we see a plot of the transfer function $\Theta_{\ell}(k)$. 
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.99\textwidth]{thetaintegrand.pdf} 
-    \label{fig:spectrum integrand}
-    \caption{Plot showing the spectrum integrand for a few selected values of $\ell$.}
+    \includegraphics[width=0.49\textwidth]{transerfunction.pdf}
+    \includegraphics[width=0.49\textwidth]{thetaintegrand.pdf}  
+    \caption{Plot showing the transfer function for a few selected values of $\ell$. The $\Theta$'s shown here is calculated }
+    \label{fig:thetas}
 \end{figure}
+
 
 
 \subsection{Temperature power spectrum}
 
+Now for the star of the show. In \cref{fig:cell full} we see how the power spectrum looks when including all terms in the source function. As mentioned earlier, there is a pretty severe bug somewhere in in the code calculating the perturbations. The result of including this term is a way too high amplitude for low $\ell$'s, the well known Sachs-Wolfe plateau is nowhere to be seen. 
+
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.99\textwidth]{cells_full.pdf} 
-    \label{fig:cell full}
     \caption{Plot showing the temperature power spectrum when including all four terms in the source function. Here we see that the Sachs-Wolfe plateu is nonexsistent, as the power spectrum is increasing at large $\ell$'s. This means something is wrong.}
+    \label{fig:cell full}
 \end{figure}
+
+To investigate this error, we plotted all the different contributions from the source function, as seen in the left figure in \cref{fig:cell debugging}. Here we see, as expected, that the biggest contributor is the Sachs-Wolfe term. We also observe the late integrated Sachs-Wolfe effect wich causes an upturn in the power spectrum for the very largest scales. However, the most important thing this figure shows is that the contribution from the last source function term. This is off by several orders of magnitude for the largest scales. 
+
+The right figure in \cref{fig:cell debugging} shows a comparison of the power spectrum with and without this last term. Here we see that they are more or less equal for small scales, after the first peak, but they diverge completely on large scales. This shows that, in our case, excluding the quadrupole term is the right decision. 
+
+
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.49\textwidth]{cells_component.pdf}
     \includegraphics[width=0.49\textwidth]{cells_compare.pdf}  
-    \label{fig:cell debugging}
     \caption{Plots showing how the different terms in the source function affect the power spectrum. The left plot shows the temperature perturbations would look if only one of the terms contributed to the power spectrum. The right plot shows the difference between including and excluding the last source function term. Here we see that the source of the error in the full solution is definietly this last term, as it raises the amplitude of the power spectrum for large scales.}
+    \label{fig:cell debugging}
 \end{figure}
+
+So, in \cref{fig:cell no last term} we see a plot of only the temperature power spectrum without the errors from \cref{fig:cell full}. When analyzing the temperature power spectrum, we can start by dividing the scales that were outside or inside the horizon during recombination. 
+
+The scales outside the horizon at recombination was never affected by the coupling between baryons or photons, or any casual physics for that matter. These perturbations were set up by inflation and remained more or less the same untill entering the horizon at later times. This is representet by the Sachs-Wolfe plateau in the power spectrum. We see an upturn in this plateau for they very large scales, this upturn stems from the late integrated Sachs-Wolfe effect. These scales entered the horizon after the universe became dark energy-dominated, so they are affected by the decaying gravitational potential due to the accelerated expansion of the universe.
+
+For the samller scales that entered the horizon before recombination however, we see there's more physics at play. We see that these scales oscillate 
+
+
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.99\textwidth]{cells_nolastterm.pdf} 
-    \label{fig:cell debugging}
     \caption{Plot showing the temperature power spectrum when excluding the fourth term in the source function.}
+    \label{fig:cell no last term}
 \end{figure}
 
 \subsection{Matter power spectrum}

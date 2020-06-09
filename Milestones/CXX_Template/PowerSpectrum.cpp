@@ -307,9 +307,11 @@ void PowerSpectrum::output_matter_pk(std::string filename) const{
   double x = 0;
   Vector log_k_array = Utils::linspace(log(k_min), log(k_max), n_k);
   Vector k_array = exp(log_k_array);
-  double k_peak = cosmo->get_H0()*(cosmo->get_OmegaB(0) + cosmo->get_OmegaCDM(0))*sqrt(2/cosmo->get_OmegaR(0));
+  //double k_peak = cosmo->get_H0()*(cosmo->get_OmegaB(0) + cosmo->get_OmegaCDM(0))*sqrt(2/cosmo->get_OmegaR(0));
+  double x_eq = -8.57; //from milestone 1
+  double k_peak = cosmo->Hp_of_x(x_eq)/Constants.c;
   fp << k_peak << " ";
-  fp << 0 << " ";
+  fp << 0 << " "; //only to make it easier to read the file in python afterwards
   fp << "\n";
 
   for(int ik=0;ik < n_k; ik++){

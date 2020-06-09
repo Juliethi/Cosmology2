@@ -124,18 +124,25 @@ def plot_theta_integrand():
     plt.show()   
 
 
-plot_transfer_function()
-plot_theta_integrand()
+#plot_transfer_function()
+#plot_theta_integrand()
 
 """PLOT MATTER POWER SPECTRUM"""
 
+background_cosmology = np.genfromtxt("../cosmology.txt")
+H_prime = background_cosmology = background_cosmology[:,2]
+x_eq = -8.57 #From milestone 1
+
+
+
 matter = np.genfromtxt("../powerspectrum.txt")
 k_matter = matter[1:,0]*Mpc/h
-pk = matter[1:,1]*(h/Mpc)**3
+pk = matter[1:,1]*(h/Mpcer[1:,0]*Mpc/h
+pk = matter[1:,1]*(h/Mpc)**3)**3
 
 def plot_matter_powerspectrum():
     plt.loglog(k_matter, pk)
     plt.show()
 
-#plot_matter_powerspectrum()
+plot_matter_powerspectrum()
 
