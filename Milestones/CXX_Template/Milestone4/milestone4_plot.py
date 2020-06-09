@@ -117,7 +117,7 @@ def plot_theta_integrand():
     plt.title(r"Spectrum integrand $\Theta_{\ell}(k)^2/k$")
     plt.xlabel(r"k [1/Mpc]")
     plt.ylabel(r"$\Theta_{\ell}(k)^2/k$")
-    plt.ylim([1e-6,1e2])
+    plt.ylim([1e-12,1e2])
     plt.legend()
     plt.tight_layout()
     plt.savefig("thetaintegrand.pdf")
@@ -125,23 +125,27 @@ def plot_theta_integrand():
 
 
 #plot_transfer_function()
-#plot_theta_integrand()
+plot_theta_integrand()
 
 """PLOT MATTER POWER SPECTRUM"""
 
-background_cosmology = np.genfromtxt("../cosmology.txt")
-H_prime = background_cosmology = background_cosmology[:,2]
-x_eq = -8.57 #From milestone 1
-
-
-
 matter = np.genfromtxt("../powerspectrum.txt")
 k_matter = matter[1:,0]*Mpc/h
-pk = matter[1:,1]*(h/Mpcer[1:,0]*Mpc/h
-pk = matter[1:,1]*(h/Mpc)**3)**3
+pk = matter[1:,1]*(h/Mpc)**3
+
+k_peak = matter[0,0]*Mpc/h
+print(k_peak)
 
 def plot_matter_powerspectrum():
-    plt.loglog(k_matter, pk)
+    plt.loglog(k_matter, pk, label="P(k)")
+    plt.title("Matter power spectrum")
+    plt.vlines(k_peak, pk.min(), pk.max(), label=r"$k_{peak}$", colors = "r")
+    plt.xlabel("k [h/Mpc]")
+    plt.ylabel(r"P(k) [Mpc/h]$^3$")
+    plt.ylim(pk.min(), 0.5*1e5)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig("matterpowerspectrum.pdf")
     plt.show()
 
 plot_matter_powerspectrum()

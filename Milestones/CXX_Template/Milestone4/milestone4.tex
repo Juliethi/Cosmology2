@@ -149,21 +149,20 @@ The result from this integration was normalized by a factor $\frac{\ell(\ell + 1
 The first result of the temperature power spectrum was too large for large values of $\ell$. To investigate the source of this error, we plotted the contribution from each term of the source function separately. In doing so we found that the last term was several orders of magnitudes larger than it should be. This is probably due to some error in the derivatives of $\Theta_2$, which are the only variable unique to this last term. Unable to find this error within reasonable time, this term was dropped in the final results. Originally this term is the smallest of all the terms in the source function, most of the effect on the power spectrum stems from the Sachs-Wolfe term, so not including this last term leads to less errors than including it the way it looks now.
 
 \subsection{Matter power spectrum}
-Calculating the matter power spectrum was pretty straight forward. We only needed to calculate \cref{eq matter power spectrum}. We also wanted to find $k_{\mathrm{peak}} = \mathcal{H}(a_{eq}).$ This was done by blablablaba
+Calculating the matter power spectrum was pretty straight forward. We only needed to calculate \cref{eq matter power spectrum}. We also wanted to find $k_{\mathrm{peak}} = \mathcal{H}(a_{eq})/c.$ This was simply done by utilizing the fact that we already have an expression for $\mathcal{H}(x)$ and a value for $x_{eq}=-8.57$ from milestone 1. 
 
-\section{Results}
+\section{Results and discussion}
 \subsection{Thetas}
 
-In \cref{fig:thetas} we see a plot of the transfer function $\Theta_{\ell}(k)$. 
+In \cref{fig:thetas} we see aplot of the transfer function $\Theta_{\ell}(k)$ and the spectrum integrand $\Theta_{\ell}^2(k)/k$. I must honestly admit that I am not sure of a good way to interpret these in a physical way, so I will quote a man that is probably very proficient in astrophysics and say that they are wibbly wobbly timey wimey. :)
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.49\textwidth]{transerfunction.pdf}
     \includegraphics[width=0.49\textwidth]{thetaintegrand.pdf}  
-    \caption{Plot showing the transfer function for a few selected values of $\ell$. The $\Theta$'s shown here is calculated }
+    \caption{Plots showing the transfer function and spectrum integrand for a few selected values of $\ell$. The left figure shows the transfer function $\Theta_{\ell}(k)$ and the right figure shows the spectrum integrand $\Theta_{\ell}^2(k)/k$ }
     \label{fig:thetas}
 \end{figure}
-
 
 
 \subsection{Temperature power spectrum}
@@ -195,8 +194,20 @@ So, in \cref{fig:cell no last term} we see a plot of only the temperature power 
 
 The scales outside the horizon at recombination was never affected by the coupling between baryons or photons, or any casual physics for that matter. These perturbations were set up by inflation and remained more or less the same untill entering the horizon at later times. This is representet by the Sachs-Wolfe plateau in the power spectrum. We see an upturn in this plateau for they very large scales, this upturn stems from the late integrated Sachs-Wolfe effect. These scales entered the horizon after the universe became dark energy-dominated, so they are affected by the decaying gravitational potential due to the accelerated expansion of the universe.
 
-For the samller scales that entered the horizon before recombination however, we see there's more physics at play. We see that these scales oscillate 
+For the samller scales that entered the horizon before recombination however, we see there's more physics at play. We mainly see three effects here: 
+\begin{itemize}
+\item Scales that enter the horizon before recombination oscillate.
+\item The amplitude of these oscillations seems to alternate, with even amplitudes being higher and odd amplitudes lower.
+\item Theres an overall trend of all amplitudes decreasing as $\ell$ increases.
+\end{itemize}
 
+The oscillations of the power spectrum stems from the fact that the temperature perturbations themselves oscillate with the baryons in the baryon-photon fluid. A peak in the power spectrum corresponds to a temperature perturbation that is either at a maximum or minimum in its oscillations. A trough in the power spectrum corresponds to the scales that are midway in their oscillations at recombinations. This midway-point is neither an overdensity, nor an underdensity and does then not deviate from the smooth background. 
+
+The first peak in the power spectrum corresponds to the scale that enters the horizon just before recombination and has its first maximun at recombination, the first trough corresponds to the scale entering the horizon just a bit earlier than this, so its first maximum happens before recombination. The second peak then corresponds to a perturbation entering the horizon even earlier than this, this perturbation has had time to undergo one full oscillation before recombination, and is then at a minima. And so it goes for smaller and smaller perturbations further back in time.
+
+The alternating amplitudes can be explained by looking further into the source of the peaks. As explained in the last two paragraphs, a peak in the temperature power spectrum corresponds to either a minimum or a maximum in the temperature perturbation. A maximum is an overdense region, and a minimum is an underdense region. In the overdense regions, one have the added effect of gravity from the baryons that increase the perturbation growth. This effect is not present in the underdense-region and thus the amplitude from overdense region will be larger. 
+
+The last effect is the dampening of small scales. This dampening happens because the photon-baryon fluid isn't \textit{actually} a fluid. The photons scatter off of the electrons a finite amount of times. A photon will on average move a given distance per Hubble time. Photon perturbations smaller than this distance will be washed out.
 
 
 \begin{figure}[h]
@@ -207,6 +218,20 @@ For the samller scales that entered the horizon before recombination however, we
 \end{figure}
 
 \subsection{Matter power spectrum}
+Last, but not least, the matter power spectrum. In \cref{fig:matter power spectrum} we see a plot showing the matter power spectrum, with $k_{\mathrm{peak}} = 0.018/\mathrm{Mpc}$ marked. $k_{\mathrm{peak}}$ corresponds to the scale entering the horizon at matter/radiation equality, and marks the point where scales larger than this does not experience Meszaros suppression, while smaller scales does. 
+
+Meszaros suppressions stems from the fact that matter perturbations hardly grow in the radiation dominated era. Perturbations that enter the horizon during this era are thss stunted, while larger perturbations that enter the horizon in later times during the matter dominated era are not affected by this suppression. 
+
+This is clearly visible on the plot, where the power spectrum for large scale perturbations $k < k_{\mathrm{peak}}$ grow as $P(k) \propto k$, while $k > k_{\mathrm{peak}}$ decreases rapidly. The smaller the scale, the longer they have had to grow in the radiation dominated era, and the more suppressed they are.
+
+Another interesting thing we see in the matter power spectrum are the oscillations in small scales. These stem from the same constant battle between gravity and pressure as we see in the photon temperature perturbations. Neat stuff.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.99\textwidth]{matterpowerspectrum.pdf} 
+    \caption{Plot showing the matter power spectrum as a function of scale $k$. Marked with a red line is the scale that enters the horizon at matter/radiation equality.}
+    \label{fig:matter power spectrum}
+\end{figure}
 
 \bibliography{bibtex}{}
 \bibliographystyle{plain}
